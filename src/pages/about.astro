@@ -1,0 +1,207 @@
+---
+// このサイトについてコンテンツ画面
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import ScrollbarStyles from '../components/ScrollbarStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import AboutMarkdown from '../content/about.md';
+import ContentAnimatedElements from '../components/ContentAnimatedElements.astro';
+import NavigationElements from '../components/NavigationElements.astro';
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <CommonHead title="about" description="このサイトについての情報" />
+    <GlobalStyles />
+    <ScrollbarStyles />
+    <CustomCursor />
+</head>
+<body>
+    <div class="content-root">
+        <!-- メニュー戻るボタン（リンク遷移でView Transition発火） -->
+        <NavigationElements 
+            showBackButton={true}
+            backButtonUrl="/menu"
+            backButtonLabel="メニューに戻る"
+            showCopyright={true}
+            copyrightText="十街©"
+            copyrightUrl="/entrance"
+        />
+        
+        <!-- アニメーション要素 -->
+        <ContentAnimatedElements
+            contentName="案内"
+        />
+
+        <!-- アイランド: コンテンツコンテナ -->
+        <section class="content-island" id="aboutIsland">
+            <header class="island-title" id="aboutIslandTitle"></header>
+            <div class="island-content">
+                <div class="about-body" id="aboutBody" style="opacity: 0;"><AboutMarkdown /></div>
+                <div class="scrollbar-mask" aria-hidden="true"></div>
+            </div>
+            <!-- 右下操作要素は本画面では無し -->
+        </section>
+    </div>
+
+    <script>
+        import { initCustomScrollbars } from '../components/ScrollbarClient';
+        // テーマ保存・復元
+        function saveTheme() {
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        }
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') document.body.classList.add('dark');
+        }
+
+        // カスタムスクロールバー（スクロール時のみ表示）
+        initCustomScrollbars();
+        // テーマ復元とトグル
+        loadTheme();
+        const moonBtn = document.getElementById('moonBtn');
+        if (moonBtn) moonBtn.onclick = () => { document.body.classList.toggle('dark'); saveTheme(); };
+
+        // 保存されたコンテンツ名を復元
+        // const savedContent = localStorage.getItem('currentContent');
+        // if (savedContent) {
+        //     const contentNameEl = document.getElementById('contentName');
+        //     if (contentNameEl) {
+        //         contentNameEl.textContent = savedContent;
+        //     }
+        //     const islandTitle = document.getElementById('aboutIslandTitle');
+        //     if (islandTitle) islandTitle.textContent = savedContent;
+        // }
+
+        // CustomTransition終了後にAboutMarkdownをフェード効果で表示
+        document.addEventListener('astro:page-load', () => {
+            const aboutBody = document.getElementById('aboutBody');
+            if (aboutBody) {
+                // CustomTransitionの時間（1.8s）に合わせて遅延
+                setTimeout(() => {
+                    aboutBody.style.transition = 'opacity 0.8s ease-in-out';
+                    aboutBody.style.opacity = '1';
+                }, 800);
+            }
+        });
+    </script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Serif JP', serif;
+            background: #fff;
+            color: #222;
+        }
+        body {
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .content-root {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* arrow-btn 仕様（menu.astroに準拠） */
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #444;
+            cursor: url('/book-cursor.png'), pointer;
+            margin: 0.5rem 0;
+            transition: color 0.2s;
+        }
+        .arrow-btn:hover {
+            color: #888;
+        }
+
+        .back-btn {
+            background: none;
+            /* border: none; */
+            cursor: url('/book-cursor.png'), pointer;
+            transition: color 0.2s;
+        }
+        .back-btn:hover svg path {
+            stroke: #888;
+        }
+        .content-name {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            cursor: url('/book-cursor.png'), pointer;
+        }
+        .content-name:hover {
+            color: #888;
+        }
+
+        /* ダークモード用 */
+        body.dark {
+            background: #1F222D;
+            color: #fff;
+        }
+
+        body.dark .arrow-btn svg path {
+            stroke: #eee;
+        }
+        body.dark .arrow-btn:hover svg path {
+            stroke: #fff;
+        }
+
+        
+        /* ===== アイランド（コンテンツコンテナ） ===== */
+        .content-island {
+            position: absolute;
+            left: 55vw;
+            top: 15vh;
+            width: 35vw;   /* 80vw - 60vw */
+            height: 65vh;  /* 80vh - 20vh */
+            box-sizing: border-box;
+            border: none;
+            padding: 0; /* 内部で％指定を用いるため */
+            overflow: hidden;
+            z-index: 6;
+            background: transparent;
+        }
+        .island-title {
+            position: absolute;
+            left: 5%;
+            top: 5%;
+            font-size: 1.5rem;
+            letter-spacing: 0.1em;
+        }
+        .island-content {
+            position: absolute;
+            left: 5%;
+            top: 15%;
+            width: 90%;
+            height: 80%;
+            overflow: auto;
+        }
+        .about-body {
+            line-height: 1.9;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+        /* スクロールバー関連は共通スタイルへ移行（ScrollbarStyles） */
+        body.dark .content-island { border: none; }
+        body.dark .island-title {
+            color: #eee;
+        }
+        body.dark .about-body {
+            color: #eee;
+        }
+        
+    </style>
+</body>
+</html> 

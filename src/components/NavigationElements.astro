@@ -1,0 +1,90 @@
+---
+// ナビゲーション要素（戻るボタン、著作権表示など）を統合するコンポーネント
+interface Props {
+  showBackButton?: boolean;
+  backButtonUrl?: string;
+  backButtonLabel?: string;
+  showCopyright?: boolean;
+  copyrightText?: string;
+  copyrightUrl?: string;
+  className?: string;
+}
+
+const {
+  showBackButton = false,
+  backButtonUrl = "/menu",
+  backButtonLabel = "メニューに戻る",
+  showCopyright = true,
+  copyrightText = "十街©",
+  copyrightUrl = "/entrance",
+  className = ""
+} = Astro.props;
+---
+
+<!-- 戻るボタン -->
+{showBackButton && (
+  <a href={backButtonUrl} class={`arrow-btn back-to-menu ${className}`} id="backToMenu" aria-label={backButtonLabel}>
+    <svg width="35" height="35" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 10 L10 25 L30 40" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
+)}
+
+<!-- 著作権 -->
+{showCopyright && (
+  <a href={copyrightUrl} class={`copyright ${className}`} id="copyright">{copyrightText}</a>
+)}
+
+<style>
+  /* arrow-btn 仕様（menu.astroに準拠） */
+  .arrow-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #444;
+    cursor: url('/book-cursor.png'), pointer;
+    margin: 0.5rem 0;
+    transition: color 0.2s;
+  }
+
+  .arrow-btn:hover {
+    color: #888;
+  }
+
+  /* 戻るボタン配置 */
+  .back-to-menu {
+    position: absolute;
+    left: 10vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+  }
+
+  .copyright {
+    position: fixed;
+    right: 2vw;
+    bottom: 1.5vh;
+    font-size: 1rem;
+    color: #272727;
+    font-family: 'Noto Serif JP', serif;
+    letter-spacing: 0.1em;
+    z-index: 10;
+    cursor: url('/book-cursor.png'), pointer;
+    background: none;
+    border: none;
+    outline: none;
+  }
+
+  /* ダークモード対応 */
+  body.dark .arrow-btn svg path {
+    stroke: #eee;
+  }
+
+  body.dark .arrow-btn:hover svg path {
+    stroke: #fff;
+  }
+
+  body.dark .copyright {
+    color: #eee;
+  }
+</style>

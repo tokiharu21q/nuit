@@ -1,0 +1,100 @@
+---
+// 月アイコンとテーマ切り替え機能を統合するコンポーネント
+interface Props {
+  className?: string;
+  position?: 'entrance' | 'menu' | 'content';
+}
+
+const { className = "", position = "content" } = Astro.props;
+---
+
+<!-- 月アイコン -->
+<button 
+  class={`moon-btn ${position} ${className}`} 
+  id="moonBtn" 
+  aria-label="ライト/ダーク切替"
+>
+  <svg id="moonIcon" width="48" height="48" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 下のレイヤー：#6c7293の正円 -->
+    <circle cx="25" cy="25" r="20" fill="#6c7293"/>
+    <!-- 上のレイヤー：#ffffffの正円（少し左にずらして重ねる） -->
+    <circle cx="15" cy="15" r="20" fill="#ffffff" class="no-hover-effect"/>
+  </svg>
+</button>
+
+<script>
+  // テーマ保存・復元
+  function saveTheme() {
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  }
+
+  function loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark');
+    }
+  }
+
+  // テーマ復元とトグル
+  loadTheme();
+  const moonBtn = document.getElementById('moonBtn');
+  if (moonBtn) {
+    moonBtn.onclick = () => {
+      document.body.classList.toggle('dark');
+      saveTheme();
+    };
+  }
+</script>
+
+<style>
+  .moon-btn {
+    position: absolute;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    view-transition-name: moon-button;
+  }
+
+  /* entrance.astro用の位置 */
+  .moon-btn.entrance {
+    position: fixed;
+    left: 50vw;
+    top: 40vh;
+    transform: translate(-50%, -50%);
+    margin-bottom: 3.5rem;
+  }
+
+  /* menu.astro用の位置 */
+  .moon-btn.menu {
+    left: 25vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+  }
+
+  /* content.astro用の位置（about, photos, diary） */
+  .moon-btn.content {
+    left: 45px;
+    top: 45px;
+    transform: translate(-50%, -50%);
+  }
+
+  .moon-btn:hover svg circle:first-child {
+    filter: brightness(0.9);
+  }
+
+  /* ダークモード対応 */
+  body.dark .no-hover-effect {
+    fill: #1F222D;
+  }
+
+  body.dark .moon-btn svg circle:first-child {
+    fill: #fff;
+  }
+
+  .moon-btn svg circle {
+    transition: fill 0.3s ease-in-out;
+  }
+</style>

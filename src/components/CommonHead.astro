@@ -1,0 +1,107 @@
+---
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- 主要メタタグ -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+
+<ClientRouter /> 
+
+<style is:global>
+  
+  /* 月アイコンの移動アニメーション（entrance.astro → menu.astro） */
+  @keyframes moon-move-from-entrance {
+    0% {
+      transform: translate(calc(25vw), calc(-50vh));
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  /* 月アイコンの移動アニメーション（menu.astro → entrance.astro） */
+  @keyframes moon-move-to-entrance {
+    0% {
+      transform: translate(calc(25vw - 50vw), calc(50vh - 40vh));
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+
+  /* 月アイコンの移動アニメーション（その他の遷移） */
+  @keyframes moon-move{
+    0% {
+      transform: translate(calc(22.25vw), calc(44.75vh));
+    }
+    100% {
+      /* transform: translate(calc(22vw), calc(44.5vh)); */
+      transform: translate(0, 0);
+    }
+  }
+
+  /* 月アイコンの移動アニメーション（content→menu.astro） */
+  @keyframes moon-move-to-menu{
+    0% {
+      transform: translate(calc(-22.25vw), calc(-44.75vh));
+    }
+    100% {
+      /* transform: translate(calc(22vw), calc(44.5vh)); */
+      transform: translate(0, 0);
+    }
+  }
+  
+  @keyframes moon-move-to-menu-2{
+    0% {
+      transform: translate(calc(-22.25vw), calc(-44.75vh));
+    }
+    100% {
+      /* transform: translate(calc(22vw), calc(44.5vh)); */
+      transform: translate(0, 0);
+    }
+  }
+
+
+
+  /* スラッシュのアニメーション（コンテンツ画面からmenu.astroへの遷移用） */
+  @keyframes slash-rotate {
+    0% {
+      transform: rotate(45deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+  /* スラッシュのアニメーション（entrance.astroからmenu.astroへの遷移用 - 回転なし） */
+  @keyframes slash-no-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+
+  /* コンテンツ名の移動アニメーション */
+  @keyframes content-name-move {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(0, 0); 
+    }
+  }
+
+</style>

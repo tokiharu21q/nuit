@@ -1,0 +1,26 @@
+---
+// 趣味ブログのメインページ - ローディング画面にリダイレクト
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <CommonHead title="loading..." description="趣味ブログのメインページ" />
+    <GlobalStyles />
+    <CustomCursor />
+</head>
+<body>
+    <script>
+        // メインページにアクセスしたらローディング画面にリダイレクト
+        window.location.href = '/loading';
+    </script>
+    <main>
+    </main>
+</body>
+</html>

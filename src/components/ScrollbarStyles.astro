@@ -1,0 +1,117 @@
+---
+// スクロールバー共通スタイル
+---
+
+<style is:global>
+  /* ページ全体スクロール（html/body）の矢印ボタンも非表示 */
+  html::-webkit-scrollbar-button,
+  body::-webkit-scrollbar-button,
+  html::-webkit-scrollbar-button:single-button,
+  body::-webkit-scrollbar-button:single-button,
+  html::-webkit-scrollbar-button:vertical:increment,
+  body::-webkit-scrollbar-button:vertical:increment,
+  html::-webkit-scrollbar-button:vertical:decrement,
+  body::-webkit-scrollbar-button:vertical:decrement,
+  html::-webkit-scrollbar-button:horizontal:increment,
+  body::-webkit-scrollbar-button:horizontal:increment,
+  html::-webkit-scrollbar-button:horizontal:decrement,
+  body::-webkit-scrollbar-button:horizontal:decrement {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+    background-image: none;
+    border: none;
+  }
+  html::-webkit-scrollbar-corner,
+  body::-webkit-scrollbar-corner { background: transparent; }
+
+  /* OverlayScrollbars導入によりネイティブバーは隠す（表示制御はライブラリに委譲） */
+  .island-content {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* 旧Edge/IE */
+  }
+
+  /* WebKit/Blink 共通設定 */
+  .island-content::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .island-content::-webkit-scrollbar-track { background: #0000; }
+  .island-content::-webkit-scrollbar-thumb {
+    background-color: #0000;
+    border-radius: 1px;
+    transition: background-color 0.2s ease;
+  }
+  /* 矢印ボタンを常時無効化 */
+  .island-content::-webkit-scrollbar-button,
+  .island-content::-webkit-scrollbar-button:single-button,
+  .island-content::-webkit-scrollbar-button:single-button:vertical:increment,
+  .island-content::-webkit-scrollbar-button:single-button:vertical:decrement,
+  .island-content::-webkit-scrollbar-button:single-button:horizontal:increment,
+  .island-content::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+    background-image: none;
+    border: none;
+  }
+  .island-content::-webkit-scrollbar-corner { background: transparent; }
+
+  /* ホバー時のみ可視化（WebKit/Blink） */
+  .island-content:hover::-webkit-scrollbar-thumb { background: #0000004d; }
+  .island-content:hover::-webkit-scrollbar-track { background: #0000001a; }
+  /* ホバー時のみ可視化（Firefox） */
+  .island-content:hover { scrollbar-color: #0000004d #0000001a; }
+
+  /* 互換性向上: 追加のボタン疑似セレクタ（古いWebKit/Safari等） */
+  .island-content::-webkit-scrollbar-button:start:decrement,
+  .island-content::-webkit-scrollbar-button:end:increment,
+  .island-content::-webkit-scrollbar-button:vertical:increment,
+  .island-content::-webkit-scrollbar-button:vertical:decrement,
+  .island-content::-webkit-scrollbar-button:horizontal:increment,
+  .island-content::-webkit-scrollbar-button:horizontal:decrement,
+  .island-content::-webkit-scrollbar-button:vertical:increment:hover,
+  .island-content::-webkit-scrollbar-button:vertical:decrement:hover,
+  .island-content::-webkit-scrollbar-button:horizontal:increment:hover,
+  .island-content::-webkit-scrollbar-button:horizontal:decrement:hover {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+    background-image: none;
+    border: none;
+  }
+
+  /* レイアウトのズレ防止（スクロールバーの有無で幅が変わらないように） */
+  .island-content { scrollbar-gutter: stable both-edges; }
+
+  /* ダークテーマ */
+  body.dark .island-content { scrollbar-color: transparent transparent; }
+  body.dark .island-content::-webkit-scrollbar-track { background: #0000; }
+  body.dark .island-content::-webkit-scrollbar-thumb { background-color: #0000; }
+  body.dark .island-content:hover::-webkit-scrollbar-thumb { background: #ffffff80; }
+  body.dark .island-content:hover::-webkit-scrollbar-track { background: #ffffff29; }
+  body.dark .island-content:hover { scrollbar-color: #ffffff80 #ffffff29; }
+  /* OverlayScrollbars 見た目上書き（幅と色） */
+  /* 幅指定は CSS変数 --os-size を .os-scrollbar に与える（公式推奨） */
+  .os-scrollbar { --os-size: 1px; }
+
+  /* 色: ライト #444 / ダーク #fff */
+  /* OSのデフォルトCSSより強い優先度にするために body を付与 */
+  body .os-scrollbar .os-scrollbar-handle {
+    background: #444; 
+    min-height: 10%;
+    max-height: 30%; 
+    max-width: 1.5px;
+  }
+  body.dark .os-scrollbar .os-scrollbar-handle {
+    background: #fff; 
+    min-height: 10%;
+    max-height: 30%; 
+    max-width: 1.5px;
+  }
+</style>
+
+

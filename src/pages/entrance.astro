@@ -1,0 +1,115 @@
+---
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import NavigationElements from '../components/NavigationElements.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <CommonHead title="unique/ubique" description="エントランス画面" />
+    <GlobalStyles />
+    <CustomCursor />
+</head>
+<body>
+    <main>
+        <div class="entrance-center">
+            <!-- アニメーション要素 -->
+            <ThemeToggle position="entrance" />
+            
+            <!-- 2本線と閲覧 -->
+            <!-- 1. ファイルベースルーティング（基本実装） -->
+            <div class="view-block" id="viewBlock">
+                <div class="line"></div>
+                <a href="/menu" class="view-text" id="viewText">閲覧</a>
+                <div class="line"></div>
+            </div> 
+
+            <!-- コピーライト -->
+            <NavigationElements 
+                showBackButton={false}
+                showCopyright={true}
+                copyrightText="十街©"
+                copyrightUrl="/entrance"
+            />
+        </div>
+    </main>
+
+    <style>
+
+        body {
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .entrance-center {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .view-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            left: 50vw;
+            top: 55vh;
+            transform: translate(-50%, -50%);
+            margin-bottom: 3.5rem;
+        }
+        .line {
+            width: 120px;
+            height: 0.5px;
+            background: #272727;
+            margin: 0.2rem 0;
+            transition: background 0.3s ease-in-out;
+        }
+        .view-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #444;
+            letter-spacing: 0.1em;
+            margin: 0.2rem 0;
+            cursor: url('/book-cursor.png'), pointer;
+            background: none;
+            border: none;
+            outline: none;
+            text-align: center;
+            transition: color 0.2s;
+            user-select: none;
+        }
+        .view-text:hover, .view-text:focus {
+            color: #7c7c7c;
+        }
+
+        body.dark {
+            background: #1F222D;
+            color: #fff;
+        }
+        body.dark .line {
+            background: #fff;
+        }
+        body.dark .view-text {
+            color: #eee;
+        }
+        body.dark .view-text:hover, body.dark .view-text:focus {
+            color: #fff;
+        }
+
+        body.dark .no-hover-effect {
+            fill: #1F222D;
+        }
+
+
+
+    </style>
+</body>
+</html> 

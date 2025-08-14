@@ -1,0 +1,154 @@
+---
+// カスタムカーソルコンポーネント
+// プロジェクト全体で使用するカスタムカーソル機能
+---
+
+<style is:global>
+  /* ===== カスタムカーソル設定 ===== */
+  
+  /* デフォルトカーソルは初期状態では表示 */
+  /* マウス移動時にカスタムカーソルが有効になったら非表示にする */
+  
+  /* モバイルデバイスではカスタムカーソルを無効化 */
+  @media (max-width: 768px) {
+    * {
+      cursor: auto !important;
+    }
+    .custom-cursor-container {
+      display: none !important;
+    }
+  }
+  
+  .cursor-outer {
+    width: 27px;
+    height: 27px;
+    border: 1px solid #303030;
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    transition: left 0.4s ease, top 0.4s ease, transform 0.3s ease; 
+    opacity: 0;
+  }
+  
+
+
+
+  .cursor-inner {
+    width: 22px;
+    height: 22px;
+    border: 1px solid #000000;
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    transition: left 0.1s ease, top 0.1s ease, transform 0.1s ease; 
+    opacity: 0;
+  }
+  
+  /* カスタムカーソルが有効になった時のスタイル */
+  .custom-cursor-active .cursor-outer,
+  .custom-cursor-active .cursor-inner {
+    opacity: 1;
+  }
+  
+  .custom-cursor-active * {
+    cursor: none !important;
+  }
+  
+
+  
+  /* ダークモード時のカーソルカラー反転 */
+  body.dark .cursor-outer {
+    border-color: #ffffff;
+  }
+  
+  body.dark .cursor-inner {
+    border-color: #ffffff;
+  }
+
+</style>
+
+<div class="custom-cursor-container">
+  <!-- カーソル要素はJavaScriptで動的に生成 -->
+</div>
+
+<script>
+  // カスタムカーソル機能
+  class CustomCursor {
+    private outer: HTMLElement | null = null;
+    private inner: HTMLElement | null = null;
+    private isActive: boolean = false;
+    
+    constructor() {
+      this.init();
+    }
+    
+    init() {
+      if (window.innerWidth <= 768) return;
+      
+      // ローディング画面ではカスタムカーソルを無効化
+      if (window.location.pathname === '/loading') return;
+      
+      this.createElements();
+      this.bindEvents();
+    }
+    
+    createElements() {
+      this.outer = document.createElement('div');
+      this.inner = document.createElement('div');
+      
+      this.outer.className = 'cursor-outer';
+      this.inner.className = 'cursor-inner';
+      
+      document.body.appendChild(this.outer);
+      document.body.appendChild(this.inner);
+    }
+    
+    bindEvents() {
+      // マウス追従とカスタムカーソルの有効化
+      document.addEventListener('mousemove', (e) => {
+        if (this.outer && this.inner) {
+          // カスタムカーソルを有効化
+          if (!this.isActive) {
+            this.activateCustomCursor();
+          }
+          
+          // カーソル位置を更新
+          this.outer.style.left = (e.clientX - 28) + 'px';
+          this.outer.style.top = (e.clientY - 28) + 'px';
+          this.inner.style.left = (e.clientX - 11) + 'px';
+          this.inner.style.top = (e.clientY - 11) + 'px';
+        }
+      });
+
+      // ホバー効果
+      document.querySelectorAll('a, button, [data-hover]').forEach(element => {
+        element.addEventListener('mouseenter', () => {
+          if (this.outer) this.outer.style.transform = 'scale(1.12)';
+          if (this.inner) this.inner.style.transform = 'scale(1.12)';
+        });
+        element.addEventListener('mouseleave', () => {
+          if (this.outer) this.outer.style.transform = '';
+          if (this.inner) this.inner.style.transform = '';
+        });
+      });
+    }
+    
+    activateCustomCursor() {
+      this.isActive = true;
+      document.documentElement.classList.add('custom-cursor-active');
+    }
+  }
+
+  // シンプルな初期化関数
+  function initCursor() {
+    if (typeof document !== 'undefined') {
+      new CustomCursor();
+    }
+  }
+
+  // 基本的な初期化
+  initCursor();
+  document.addEventListener('DOMContentLoaded', initCursor);
+  document.addEventListener('astro:page-load', initCursor);
+</script> 

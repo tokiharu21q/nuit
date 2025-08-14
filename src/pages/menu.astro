@@ -1,0 +1,313 @@
+---
+// メニュー画面（単一ブロック・月アイコン・中央スラッシュ・矢印・ドット・著作権・Noto Serif JP）
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import NavigationElements from '../components/NavigationElements.astro';
+import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <CommonHead title="menu" description="メニュー画面" />
+    <GlobalStyles />
+    <CustomCursor />
+</head>
+<body>
+    <div class="menu-root">
+        <!-- アニメーション要素 -->
+        <MenuAnimatedElements />
+        
+        <!-- コンテンツナビゲーション -->
+        <div class="menu-content-nav">
+            <button class="arrow-btn" id="arrowUp" aria-label="前へ">
+                <svg width="24" height="24" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 25 L25 0 L50 25" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="menu-content-name-wrapper">
+                <a href="/about" class="menu-content-name" id="contentName">案内</a>
+            </div>
+            <button class="arrow-btn" id="arrowDown" aria-label="次へ">
+                <svg width="24" height="24" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 25 L25 50 L50 25" stroke="#444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- ドット -->
+        <div class="menu-dots">
+            <span class="dot" id="dot0"></span>
+            <span class="dot" id="dot1"></span>
+            <span class="dot" id="dot2"></span>
+        </div>
+        
+        <!-- 右下著作権 -->
+        <NavigationElements 
+            showBackButton={false}
+            showCopyright={true}
+            copyrightText="十街©"
+            copyrightUrl="/entrance"
+        />
+    </div>
+        <script>
+        // コンテンツリスト
+        const contents = [
+            { name: '案内', url: '/about' },
+            { name: '筆録', url: '/diary' },
+            { name: '写景', url: '/photos' },
+        ];
+        let current = 0;
+
+        // テーマ状態の保存と復元
+        function saveTheme() {
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+            }
+        }
+
+        // コンテンツ名切り替え処理
+        function updateContent(next: number) {
+            const nameEl = document.getElementById('contentName') as HTMLAnchorElement;
+            const dotEls = [
+                document.getElementById('dot0'),
+                document.getElementById('dot1'),
+                document.getElementById('dot2')
+            ];
+
+            if (!nameEl || dotEls.some(d => !d)) return;
+            if (next < 0) next = contents.length - 1;
+            if (next >= contents.length) next = 0;
+            
+            // フェードアウト
+            nameEl.classList.remove('fade-in');
+            nameEl.classList.add('fade-out');
+            setTimeout(() => {
+                nameEl.textContent = contents[next].name;
+                nameEl.href = contents[next].url;
+                nameEl.classList.remove('fade-out');
+                nameEl.classList.add('fade-in');
+                // ドット更新
+                dotEls.forEach((d, i) => {
+                    if (d) {
+                        d.classList.toggle('active', i === next);
+                    }
+                });
+                current = next;
+            }, 100);
+        }
+
+        // 初期化処理
+        function initializeMenu() {
+            const nameEl = document.getElementById('contentName') as HTMLAnchorElement;
+            const dotEls = [
+                document.getElementById('dot0'),
+                document.getElementById('dot1'),
+                document.getElementById('dot2')
+            ];
+            const arrowUp = document.getElementById('arrowUp');
+            const arrowDown = document.getElementById('arrowDown');
+            const moonBtn = document.getElementById('moonBtn');
+
+            // テーマを復元
+            loadTheme();
+
+            // 保存されたコンテンツ名を復元
+            const savedContent = localStorage.getItem('currentContent');
+            if (savedContent) {
+                const savedIndex = contents.findIndex(c => c.name === savedContent);
+                if (savedIndex !== -1) {
+                    current = savedIndex;
+                }
+            }
+
+            // 状態を設定
+            dotEls.forEach((d, i) => d && d.classList.toggle('active', i === current));
+            if (nameEl) {
+                nameEl.textContent = contents[current].name;
+                nameEl.href = contents[current].url;
+            }
+
+            // イベントリスナーを設定
+            if (arrowUp) arrowUp.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateContent(current - 1);
+            };
+
+            if (arrowDown) arrowDown.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                updateContent(current + 1);
+            };
+
+            if (moonBtn) moonBtn.onclick = () => {
+                document.body.classList.toggle('dark');
+                saveTheme();
+            };
+
+            if (nameEl) nameEl.onclick = () => {
+                localStorage.setItem('currentContent', contents[current].name);
+            };
+        }
+
+        // 初期化
+        initializeMenu();
+
+        // View Transitions対応：ページ遷移後に再初期化
+        document.addEventListener('astro:after-swap', initializeMenu);
+    </script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Serif JP', serif;
+            background: #fff;
+            color: #222;
+        }
+        body {
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .menu-root {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+
+        .menu-content-nav {
+            position: absolute;
+            left: 75%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #444;
+            cursor: url('/book-cursor.png'), pointer;
+            margin: 0.5rem 0;
+            transition: color 0.2s;
+        }
+
+        .arrow-btn:hover {
+            color: #888;
+        }
+
+        .menu-content-name-wrapper {
+            min-width: 6em;
+            min-height: 2.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-content-name {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            cursor: url('/book-cursor.png'), pointer;
+            opacity: 1;
+            display: inline-block;
+            background: none;
+            border: none;
+            outline: none;
+            transition: color 0.2s;
+            view-transition-name: content-name;
+        }
+
+        .menu-content-name.fade-in {
+            animation: fadeIn 0.2s;
+        }
+
+        .menu-content-name.fade-out {
+            animation: fadeOut 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .menu-dots {
+            position: absolute;
+            right: 2vw;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1.2em;
+            z-index: 5;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            opacity: 0.5;
+            transition: background 0.2s, opacity 0.2s;
+        }
+
+        .dot.active {
+            background: #444;
+            opacity: 1;
+        }
+
+
+        /* ダークモード用 */
+        body.dark {
+            background: #1F222D;
+            color: #fff;
+        }
+        body.dark .menu-slash svg path {
+            stroke: #fff;
+        }
+        body.dark .menu-content-name {
+            color: #eee;
+        }
+        body.dark .arrow-btn svg path {
+            stroke: #eee;
+        }
+        body.dark .arrow-btn:hover svg path {
+            stroke: #fff;
+        }
+        body.dark .dot {
+            background: #555;
+        }
+        body.dark .dot.active {
+            background: #fff;
+        }
+
+        body.dark .no-hover-effect {
+            fill: #1F222D;
+        }
+
+    </style>
+</body>
+</html> 

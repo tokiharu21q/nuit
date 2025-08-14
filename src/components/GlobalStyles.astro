@@ -1,0 +1,107 @@
+---
+// グローバルスタイルコンポーネント
+// すべてのページで共通のスタイル設定を提供
+---
+
+<style is:global>
+  /* グローバルリンクスタイル */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  /* フォーカス時のアウトラインを削除（アクセシビリティを考慮） */
+  a:focus {
+    outline: none;
+  }
+  
+  /* ホバー時のスタイル（必要に応じてカスタマイズ可能） */
+  a:hover {
+    text-decoration: none;
+  }
+  
+  /* アクティブ時のスタイル */
+  a:active {
+    text-decoration: none;
+  }
+  
+  /* 訪問済みリンクのスタイル */
+  a:visited {
+    text-decoration: none;
+  }
+  
+  /* グローバルHTML・BODYスタイル */
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Serif JP', serif;
+    background: #fff;
+    color: #222;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
+
+  /* ダークテーマ用グローバルスタイル */
+  body.dark {
+    background: #1F222D;
+    color: #fff;
+  }
+
+  /* スクロールバーの矢印ボタンをサイト全体で非表示（WebKit/Blink） */
+  *::-webkit-scrollbar-button,
+  *::-webkit-scrollbar-button:single-button,
+  *::-webkit-scrollbar-button:single-button:vertical:increment,
+  *::-webkit-scrollbar-button:single-button:vertical:decrement,
+  *::-webkit-scrollbar-button:single-button:horizontal:increment,
+  *::-webkit-scrollbar-button:single-button:horizontal:decrement {
+    display: none;
+    width: 0;
+    height: 0;
+    background: transparent;
+    background-image: none;
+    border: none;
+  }
+
+  /* View Transitions API の基本設定 */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: fade;
+    mix-blend-mode: normal;
+  }
+
+  /* 月ボタンの遷移 */
+  ::view-transition-old(moon-button),
+  ::view-transition-new(moon-button) {
+    animation: fade;
+    mix-blend-mode: normal;
+  }
+
+  /* 中央スラッシュの遷移 */
+  ::view-transition-old(central-slash),
+  ::view-transition-new(central-slash) {
+    /* animation: none; */
+    mix-blend-mode: normal;
+  }
+
+  /* コンテンツ名の遷移 */
+  ::view-transition-old(content-name),
+  ::view-transition-new(content-name) {
+    /* animation: none; */
+    mix-blend-mode: normal;
+  }
+</style>
+
+<script>
+  // グローバルテーマ復元機能
+  function loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark');
+    }
+  }
+
+  // ページ読み込み時にテーマを復元
+  if (typeof document !== 'undefined') {
+    loadTheme();
+  }
+</script> 

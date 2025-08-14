@@ -1,0 +1,76 @@
+---
+// 開発者用サイトマップ
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <CommonHead title="sitemap" description="開発者用サイトマップ" />
+    <GlobalStyles />
+    <CustomCursor />
+</head>
+<body>
+    <main>
+        <div class="sitemap-container">
+            <h1>サイトマップ</h1>
+            <p>開発者用のサイトマップです</p>
+            
+            <nav class="sitemap-nav">
+                <h2>全ページ一覧</h2>
+                <ul>
+                    <li><a href="/">ホーム（ローディング画面にリダイレクト）</a></li>
+                    <li><a href="/loading">ローディング画面</a></li>
+                    <li><a href="/entrance">エントランス画面</a></li>
+                    <li><a href="/menu">メニュー画面</a></li>
+                    <li><a href="/content">コンテンツ画面</a></li>
+                    <li><a href="/photos">写真</a></li>
+                    <li><a href="/diary">日記</a></li>
+                    <li><a href="/about">このサイトについて</a></li>
+                </ul>
+            </nav>
+        </div>
+    </main>
+</body>
+</html>
+
+<style>
+    .sitemap-container {
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+    
+    .sitemap-nav {
+        margin-top: 3rem;
+    }
+    
+    .sitemap-nav ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .sitemap-nav li {
+        margin: 1rem 0;
+    }
+    
+    .sitemap-nav a {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background-color: #6c757d;
+        color: white;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        cursor: url('/book-cursor.png'), pointer;
+    }
+    
+    .sitemap-nav a:hover {
+        background-color: #545b62;
+    }
+</style> 

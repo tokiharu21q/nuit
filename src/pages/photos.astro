@@ -1,0 +1,243 @@
+---
+// 写真コンテンツ画面
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import ScrollbarStyles from '../components/ScrollbarStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import ContentAnimatedElements from '../components/ContentAnimatedElements.astro';
+import NavigationElements from '../components/NavigationElements.astro';
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+    <CommonHead title="photos" description="写真ギャラリー" />
+    <GlobalStyles />
+    <ScrollbarStyles />
+    <CustomCursor />
+</head>
+<body>
+    <div class="content-root">
+        <!-- メニュー戻るボタン（リンク遷移でView Transition発火） -->
+        <NavigationElements 
+            showBackButton={true}
+            backButtonUrl="/menu"
+            backButtonLabel="メニューに戻る"
+            showCopyright={true}
+            copyrightText="十街©"
+            copyrightUrl="/entrance"
+        />
+        
+        <!-- アニメーション要素 -->
+        <ContentAnimatedElements
+            contentName="写景"
+        />
+
+        <!-- アイランド: 写真サムネイルコンテナ -->
+        <section class="content-island" id="photosIsland">
+            <header class="island-title" id="photosIslandTitle"></header>
+            <div class="island-content">
+                <div class="thumb-grid" id="thumbGrid"></div>
+                <div class="scrollbar-mask" aria-hidden="true"></div>
+            </div>
+            <div class="island-pager">
+                <button class="pager-btn" id="prevPage" aria-label="前の9件"><span>&lt;</span></button>
+                <span class="page-indicator" id="pageIndicator">1/1</span>
+                <button class="pager-btn" id="nextPage" aria-label="次の9件"><span>&gt;</span></button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        import { initCustomScrollbars } from '../components/ScrollbarClient';
+        function saveTheme() {
+            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+        }
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') document.body.classList.add('dark');
+        }
+        // カスタムスクロールバー（スクロール時のみ表示）
+        initCustomScrollbars();
+        // テーマ復元とトグル
+        loadTheme();
+        const moonBtn = document.getElementById('moonBtn');
+        if (moonBtn) moonBtn.onclick = () => { document.body.classList.toggle('dark'); saveTheme(); };
+        // 保存されたコンテンツ名を復元
+        // const savedContent = localStorage.getItem('currentContent');
+        // if (savedContent) {
+        //     const contentNameEl = document.getElementById('contentName');
+        //     if (contentNameEl) {
+        //         contentNameEl.textContent = savedContent;
+        //     }
+        //     const islandTitle = document.getElementById('photosIslandTitle');
+        //     if (islandTitle) islandTitle.textContent = savedContent;
+        // }
+
+        // ===== サムネイル一覧：ページング（暫定の最大表示件数は9件。後から変更可能）
+        const PHOTOS_PAGE_SIZE_DEFAULT = 9;
+        let photosPageSize = PHOTOS_PAGE_SIZE_DEFAULT;
+        let photosPage = 1;
+        const photosData = [] as Array<{ id: number; src: string }>;
+
+        function renderThumbs() {
+            const grid = document.getElementById('thumbGrid');
+            const indicator = document.getElementById('pageIndicator');
+            if (!grid || !indicator) return;
+            const totalPages = Math.max(1, Math.ceil(photosData.length / photosPageSize));
+            photosPage = Math.min(Math.max(1, photosPage), totalPages);
+            const start = (photosPage - 1) * photosPageSize;
+            const end = start + photosPageSize;
+            const items = photosData.slice(start, end);
+            (grid as HTMLDivElement).innerHTML = items
+                .map((it) => `<div class=\"thumb\"></div>`)
+                .join('');
+            (indicator as HTMLSpanElement).textContent = `${photosPage}/${totalPages}`;
+        }
+
+        (function initPhotosPager(){
+            const prev = document.getElementById('prevPage');
+            const next = document.getElementById('nextPage');
+            if (prev) prev.addEventListener('click', () => { photosPage -= 1; renderThumbs(); });
+            if (next) next.addEventListener('click', () => { photosPage += 1; renderThumbs(); });
+        })();
+
+        renderThumbs();
+    </script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Serif JP', serif;
+            background: #fff;
+            color: #222;
+        }
+        body {
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .content-root {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* arrow-btn 仕様（menu.astroに準拠） */
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #444;
+            cursor: url('/book-cursor.png'), pointer;
+            margin: 0.5rem 0;
+            transition: color 0.2s;
+        }
+        .arrow-btn:hover {
+            color: #888;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: url('/book-cursor.png'), pointer;
+            transition: color 0.2s;
+        }
+        .back-btn:hover svg path {
+            stroke: #888;
+        }
+        .content-name {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            cursor: url('/book-cursor.png'), pointer;
+        }
+        .content-name:hover {
+            color: #888;
+        }
+
+        /* ダークモード用 */
+        body.dark {
+            background: #1F222D;
+            color: #fff;
+        }
+
+        body.dark .arrow-btn svg path {
+            stroke: #eee;
+        }
+        body.dark .arrow-btn:hover svg path {
+            stroke: #fff;
+        }
+
+
+        /* ===== アイランド（コンテンツコンテナ） ===== */
+        .content-island {
+            position: absolute;
+            left: 55vw;
+            top: 15vh;
+            width: 35vw;   /* aboutに合わせる */
+            height: 65vh;
+            box-sizing: border-box;
+            border: none;
+            padding: 0;
+            overflow: hidden;
+            z-index: 6;
+            background: transparent;
+        }
+        .island-title {
+            position: absolute;
+            left: 5%;
+            top: 5%;
+            font-size: 1.5rem; /* content-nameと同サイズ */
+            letter-spacing: 0.1em;
+        }
+        .island-content {
+            position: absolute;
+            left: 5%;
+            top: 15%;
+            width: 90%;
+            height: 70%;
+            overflow: auto;
+        }
+        /* スクロールバー関連は共通スタイルへ移行（ScrollbarStyles） */
+        .thumb-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 1fr;
+            gap: 0.5rem;
+        }
+        .thumb {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #ddd;
+        }
+        .island-pager {
+            position: absolute;
+            right: 5%;
+            bottom: 5%;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .pager-btn {
+            background: none;
+            border: none;
+            cursor: url('/book-cursor.png'), pointer;
+            font-size: 1rem;
+            color: #444;
+        }
+        .pager-btn:hover { color: #888; }
+        .page-indicator { font-size: 0.9rem; }
+        body.dark .content-island { border: none; }
+        body.dark .island-title { color: #eee; }
+        body.dark .thumb-grid { color: #eee; }
+        body.dark .pager-btn { color: #eee; }
+        body.dark .pager-btn:hover { color: #fff; }
+    </style>
+</body>
+</html> 

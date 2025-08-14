@@ -1,0 +1,32 @@
+---
+// メニュー画面専用アニメーション要素（月アイコン、中央スラッシュ／）
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<!-- 月アイコン -->
+<ThemeToggle position="menu" />
+
+<!-- 中央スラッシュ（メニュー用の／） -->
+<div class="menu-slash" id="menuSlash">
+  <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M100 20 L40 80" stroke="#272727" stroke-width="0.8" stroke-linecap="square"/>
+  </svg>
+</div>
+
+<style>
+  /* 中央スラッシュ */
+  .menu-slash {
+    position: absolute;
+    left: 50vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    transform-origin: center;
+    view-transition-name: central-slash;
+  }
+
+  /* ダークモード対応 */
+  body.dark .menu-slash svg path {
+    stroke: #fff;
+  }
+</style>

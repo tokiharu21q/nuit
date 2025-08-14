@@ -1,0 +1,114 @@
+---
+// ローディング画面
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import { fade } from 'astro:transitions';
+---
+
+<html lang="ja" >
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <CommonHead title="now loading.." description="ローディング画面" />
+    <GlobalStyles />
+    <CustomCursor />
+</head>
+<body> 
+    <main>
+        <!-- ローディング画面のコンテンツ -->
+        <div class="loading-container">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        <p id="progressText">0%</p>
+        <a href="/entrance" id="transitionLink" style="display: none;"></a>
+    </main>
+</body>
+</html>
+
+<script>
+    // プログレスバーの自動進行と遷移
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar') as HTMLElement;
+    const progressText = document.getElementById('progressText') as HTMLElement;
+    
+    if (progressBar && progressText) {
+        // 第1段階: 0.2秒で10%までゆっくり
+        const slowInterval = setInterval(() => {
+            progress += 0.05;
+            progressBar.style.width = Math.min(progress, 20) + '%';
+            progressText.textContent = Math.floor(Math.min(progress, 20)) + '%';
+            
+            if (progress >= 7) {
+                clearInterval(slowInterval);
+                // 第2段階: 残り80%を素早く
+                const fastInterval = setInterval(() => {
+                    progress += 1;
+                    progressBar.style.width = Math.min(progress, 100) + '%';
+                    progressText.textContent = Math.floor(Math.min(progress, 100)) + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(fastInterval);
+                        // エントランス画面に遷移
+                        setTimeout(() => {
+                            const link = document.getElementById('transitionLink');
+                            if (link) link.click();
+                        }, 0);
+                    }
+                }, 5);
+            }
+        }, 1);
+    }
+</script>
+
+<style>
+    .loading-container {
+        position: fixed;
+        bottom: 30vh;
+        right: 0rem;
+    }
+    
+    .progress-container {
+        width: 30vw;
+        height: 2px;
+        background-color: #ddd;
+        overflow: hidden;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .progress-bar {
+        width: 0%;
+        height: 100%;
+        background-color: #333;
+        transition: width 0.1s ease;
+    }
+    
+    #progressText {
+        position: fixed;
+        bottom: 30vh;
+        right: 2rem;
+        font-size: 1.2rem;
+        font-weight: normal;
+        color: #333;
+        z-index: 10;
+        transition: color 0.3s ease-in-out;
+    }
+
+    /* ダークモード時のスタイル */
+    body.dark #progressText {
+        color: #fff;
+    }
+
+    body.dark .progress-container {
+        background-color: #444;
+    }
+
+    body.dark .progress-bar {
+        background-color: #fff;
+    }
+</style> 

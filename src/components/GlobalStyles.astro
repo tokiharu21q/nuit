@@ -3,7 +3,16 @@
 // すべてのページで共通のスタイル設定を提供
 ---
 
+<!-- サイト全体のフォント定義 -->
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Mincho:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
 <style is:global>
+  /* フォント変数定義 */
+  :root {
+    --font-primary: 'Zen Kaku Mincho', serif;
+    --font-secondary: 'Source Sans Pro', sans-serif;
+    --font-accent: 'Playfair Display', serif;
+  }
   /* グローバルリンクスタイル */
   a {
     text-decoration: none;
@@ -33,13 +42,16 @@
   /* グローバルHTML・BODYスタイル */
   html, body {
     height: 100%;
+    line-height: 1.2;
+    font-weight: 200;
     margin: 0;
     padding: 0;
-    font-family: 'Noto Serif JP', serif;
+    font-family: var(--font-primary);
     background: #fff;
     color: #222;
     transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
   }
+
 
   /* ダークテーマ用グローバルスタイル */
   body.dark {
@@ -62,46 +74,4 @@
     border: none;
   }
 
-  /* View Transitions API の基本設定 */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: fade;
-    mix-blend-mode: normal;
-  }
-
-  /* 月ボタンの遷移 */
-  ::view-transition-old(moon-button),
-  ::view-transition-new(moon-button) {
-    animation: fade;
-    mix-blend-mode: normal;
-  }
-
-  /* 中央スラッシュの遷移 */
-  ::view-transition-old(central-slash),
-  ::view-transition-new(central-slash) {
-    /* animation: none; */
-    mix-blend-mode: normal;
-  }
-
-  /* コンテンツ名の遷移 */
-  ::view-transition-old(content-name),
-  ::view-transition-new(content-name) {
-    /* animation: none; */
-    mix-blend-mode: normal;
-  }
 </style>
-
-<script>
-  // グローバルテーマ復元機能
-  function loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
-    }
-  }
-
-  // ページ読み込み時にテーマを復元
-  if (typeof document !== 'undefined') {
-    loadTheme();
-  }
-</script> 

@@ -1,48 +1,134 @@
-# Astro Starter Kit: Minimal
+# 個人ブログプロジェクト
 
-```sh
-pnpm create astro@latest -- --template minimal
+## 要件定義
+
+### プロジェクト概要
+- **プロジェクト名**: 個人ブログ"aonisum"
+- **目的**: SNSの制約から解放された、ユーザーの世界観を表現するプラットフォーム
+- **背景**: SNSの制約や情報洪水から脱却し、意図的に訪問してもらう価値のあるコンテンツ提供
+
+### 機能要件
+
+#### 主要機能
+1. **自己表現の場**: 自分の考えや体験を自由に表現し、世界観を伝える
+2. **ポートフォリオ**: 自分の作品や活動を展示する場
+
+#### コンテンツ管理
+- **記事投稿**: 詩的な文章や社会に対する違和感、美しい瞬間の記録
+- **写真投稿**: ビジュアルコンテンツの掲載
+- **カテゴリ・タグ**: 記事の分類機能
+- **記事一覧・検索**: 過去の記事を探しやすくする機能
+
+#### ユーザーインターフェース
+- **ダークモード**: テーマ切り替え機能
+- **レスポンシブデザイン**: スマートフォンでも見やすい機能
+- **フェードアニメーション**: ページ遷移やコンポーネント表示の統一されたアニメーション
+
+#### ページ構成
+- **ローディング画面**: 初期読み込み時の表示
+- **エントランス画面**: ブログへの入り口
+- **メニュー画面**: ナビゲーション
+- **トップページ**: 最新記事の紹介やブログの概要
+- **記事詳細ページ**: 個別の記事を表示
+- **記事一覧ページ**: 全ての記事を表示
+- **アバウトページ**: 自己紹介やブログについて
+- **ポートフォリオページ**: 作品や活動の紹介
+
+### 非機能要件
+
+#### パフォーマンス
+1. **高速読み込み**: ページの表示速度を重視
+2. **アクセシビリティ**: 様々な方々が利用しやすい設計
+3. **保守性**: 将来の更新や変更がしやすい設計
+4. **拡張性**: 将来的な機能追加に対応できる設計
+5. **セキュリティ**: 安全な運営
+6. **SEO対策**: 検索エンジンでの表示を最適化
+
+#### デザイン要件
+- **世界観**: ミニマル・シンプルをベースに、アート・クリエイティブとレトロ・ビンテージの要素を加えた文学的なスタイル
+- **UI/UX**: レイアウトがもたらす体験を最重要視
+- **色合い**: 現在の文学的なスタイルを継承
+
+#### 運用要件
+- **更新頻度**: 不定期（その時々の感覚を大切にした投稿）
+- **読者層**: 友人・知人、自分自身（年齢層・技術レベルは問わない）
+- **技術ブログではない**: 一般の方々にも親しみやすい内容
+
+## 画面設計
+
+### 画面一覧
+
+#### 1. ローディング画面 (`loading.astro`)
+- **役割**: 初期読み込み時の表示
+- **完成度**: 高（デザイン・機能ともに満足）
+
+#### 2. エントランス画面 (`entrance.astro`)
+- **役割**: ブログへの入り口
+- **完成度**: 高（デザイン・機能ともに満足）
+
+#### 3. メニュー画面 (`menu.astro`)
+- **役割**: ナビゲーション
+- **完成度**: 高（デザイン・機能ともに満足）
+- **デスクトップ版**: 画面左側にダークモード切り替えの月アイコン、画面中央に／、画面右側にコンテンツ名と現在位置のドット表示、コンテンツ切替の矢印ボタン
+- **モバイル版**: 画面左上に月アイコン、画面中央に／表示、ハンバーガーメニューでコンテンツ切り替え
+
+#### 4. トップページ (`index.astro`)
+- **役割**: 最新記事の紹介やブログの概要
+- **完成度**: 高（デザイン・機能ともに満足）
+
+#### 5. アバウトページ (`about.astro`)
+- **役割**: 自己紹介やブログについて
+- **完成度**: 高（デザイン・機能ともに満足）
+
+#### 6. ログページ (`log.astro`)
+- **役割**: 記事一覧の表示
+- **完成度**: 部分的に完成（改善が必要）
+- **表示方法**: リスト形式（各項目間に0.5pxの区切り線）
+- **1ページあたり**: 10記事
+- **ページネーション**: `< 1 / 3 >` 形式
+
+#### 7. 写真ページ (`photo.astro`)
+- **役割**: 写真ギャラリー
+- **完成度**: 部分的に完成（改善が必要）
+- **表示方法**: 3×3グリッド（9マスのサムネイル）
+- **サムネイル**: 透明度の低い黒色に白地の写真タイトル
+- **モーダル表示**: 画面中央にフェードアニメーション
+- **モーダル背景**: 半透明の黒
+- **前後ボタン**: シンプルな矢印（< >）
+- **説明表示**: 「description >」ボタンで黒の半透明レイヤーに白文字で説明
+
+### 画面遷移図
+```
+ローディング画面
+    ↓
+エントランス画面
+    ↓
+メニュー画面
+    ↓
+├── トップページ
+├── アバウトページ
+├── ログページ
+└── 写真ページ
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/minimal)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/minimal)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/minimal/devcontainer.json)
+### アニメーション仕様
+- **種類**: フェードイン/アウト（透明度の変化のみ）
+- **速度**: 低速（1.0秒程度、後で調整可能）
+- **適用範囲**: 全ての要素（ページ遷移、コンポーネント表示等）
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### レスポンシブデザイン
+- **記事表示**: デスクトップと同じリスト形式
+- **写真ページ**: 3×3グリッド（デスクトップと同じ）
+- **ナビゲーション**: ハンバーガーメニュー（2本線）
+- **モバイル制限**: デスクトップ版の右側ナビゲーションは非表示
 
-## 🚀 Project Structure
+## 技術仕様
+- **フレームワーク**: Astro
+- **言語**: TypeScript
+- **スタイリング**: CSS
+- **デプロイ**: Vercel
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
-
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-"# nuit" 
+## 開発状況
+- [x] 要件定義完了
+- [x] 画面設計完了
+- [x] プロンプトルール作成完了 

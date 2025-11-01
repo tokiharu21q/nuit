@@ -1,0 +1,602 @@
+---
+// 写真コンテンツ画面
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import ScrollbarStyles from '../components/ScrollbarStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import NavigationElements from '../components/NavigationElements.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import { getCollection } from 'astro:content';
+
+// Content Collectionsから写真データを取得（サーバーサイドで処理）
+const allPhotos = await getCollection('photos');
+// 日付の新しい順にソート
+const sortedPhotos = allPhotos.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+const photosData = sortedPhotos.map((photo, index) => ({
+    id: index + 1,
+    title: photo.data.title,
+    description: photo.data.description || '',
+    date: photo.data.date,
+    image: photo.data.image,
+    tags: photo.data.tags || []
+}));
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <CommonHead title="aonisum/photo" description="写真ギャラリー" />
+    <GlobalStyles />
+    <ScrollbarStyles />
+    <CustomCursor />
+</head>
+<body>
+    <div class="content-root">
+        <!-- 中央スラッシュ -->
+        <div class="content-slash" id="contentSlash">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 20 L0 70" stroke="#272727" stroke-width="0.8" stroke-linecap="square"/>
+            </svg>
+        </div>
+
+        <!-- コンテンツタイトル -->
+        <div class="content-title" id="contentTitle">photo</div>
+
+        <!-- メニュー戻るボタン（リンク遷移でView Transition発火） -->
+        <NavigationElements 
+            showBackButton={true}
+            backButtonUrl="/menu"
+            backButtonLabel="メニューに戻る"
+            showCopyright={true}
+            copyrightText="aonisum©"
+            copyrightUrl="/entrance"
+        />
+        
+        <!-- 月アイコン -->
+        <ThemeToggle position="content" />
+
+        <!-- アイランド: 写真サムネイルコンテナ -->
+        <section class="content-island" id="photosIsland">
+            <header class="island-title" id="photosIslandTitle"></header>
+            <div class="island-content">
+                <div class="thumb-grid" id="thumbGrid"></div>
+                <div class="scrollbar-mask" aria-hidden="true"></div>
+            </div>
+            <div class="island-pager">
+                <button class="pager-btn" id="prevPage" aria-label="前の9件"><span>&lt;</span></button>
+                <span class="page-indicator" id="pageIndicator">1/1</span>
+                <button class="pager-btn" id="nextPage" aria-label="次の9件"><span>&gt;</span></button>
+            </div>
+        </section>
+    </div>
+
+    <!-- 写真モーダル -->
+    <div id="photoModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modalClose" data-hover>&times;</span>
+            <a class="modal-prev" id="modalPrev">&#10094;</a>
+            <a class="modal-next" id="modalNext">&#10095;</a>
+            <img id="modalImage" class="modal-image" src="" alt="">
+        </div>
+    </div>
+
+    <!-- サーバーサイドで取得した写真データをクライアントサイドに渡す -->
+    <script id="photos-data" type="application/json" set:html={JSON.stringify(photosData)}></script>
+
+    <script>
+        import { initCustomScrollbars } from '../components/ScrollbarClient';
+        // カスタムスクロールバー（スクロール時のみ表示）
+        initCustomScrollbars();
+
+        // メニュー状態保存処理
+        document.addEventListener('astro:before-preparation', () => {
+            // 現在のコンテンツ名を保存
+            localStorage.setItem('currentContent', 'photo');
+        });
+
+        // ===== サムネイル一覧：ページング（暫定の最大表示件数は9件。後から変更可能）
+        const PHOTOS_PAGE_SIZE_DEFAULT = 9;
+        let photosPageSize = PHOTOS_PAGE_SIZE_DEFAULT;
+        let photosPage = 1;
+        // サーバーサイドで取得した写真データを使用
+        const photosData = JSON.parse(document.getElementById('photos-data')?.textContent || '[]');
+
+        function renderThumbs() {
+            const grid = document.getElementById('thumbGrid');
+            const indicator = document.getElementById('pageIndicator');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            
+            if (!grid || !indicator || !prevBtn || !nextBtn) return;
+            
+            const totalPages = Math.max(1, Math.ceil(photosData.length / photosPageSize));
+            photosPage = Math.min(Math.max(1, photosPage), totalPages);
+            const start = (photosPage - 1) * photosPageSize;
+            const end = start + photosPageSize;
+            const items = photosData.slice(start, end);
+            
+            // 1. 古い要素のopacityを0.5sかけて0にする
+            const currentHeight = grid.offsetHeight;
+            grid.style.minHeight = currentHeight + 'px';
+            grid.style.opacity = '0';
+            
+            // 2. 0.5s後に古い要素を削除
+            setTimeout(() => {
+                grid.innerHTML = '';
+                
+                // グリッドコンテナに動的にスタイルを適用
+                grid.style.display = 'grid';
+                grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                grid.style.gridAutoRows = '1fr';
+                grid.style.gap = '0.2rem';
+                grid.style.width = '100%';
+                grid.style.maxWidth = '100%';
+                grid.style.transition = 'min-height 0.1s ease-out, opacity 1s ease-in-out';
+                
+                // 3. 新しい要素を追加
+                items.forEach((it: any, index: number) => {
+                    const globalIndex = start + index;
+                    const thumbEl = document.createElement('div');
+                    thumbEl.className = 'thumb';
+                    thumbEl.setAttribute('data-index', globalIndex.toString());
+                    thumbEl.setAttribute('data-hover', '');
+                    
+                    // 動的にスタイルを適用
+                    thumbEl.style.width = '100%';
+                    thumbEl.style.aspectRatio = '1 / 1';
+                    thumbEl.style.background = '#ddd';
+                    thumbEl.style.overflow = 'hidden';
+                    thumbEl.style.borderRadius = '0px';
+                    thumbEl.style.cursor = 'pointer';
+                    thumbEl.style.transition = 'transform 0.2s ease';
+                    thumbEl.style.maxWidth = '100%';
+                    thumbEl.style.boxSizing = 'border-box';
+                    thumbEl.style.position = 'relative';
+                    
+                    const imgEl = document.createElement('img');
+                    imgEl.src = it.image;
+                    imgEl.alt = it.title;
+                    imgEl.loading = 'lazy';
+                    
+                    // 画像要素に動的にスタイルを適用
+                    imgEl.style.width = '100%';
+                    imgEl.style.height = '100%';
+                    imgEl.style.objectFit = 'cover';
+                    imgEl.style.display = 'block';
+                    imgEl.style.maxWidth = '100%';
+                    imgEl.style.maxHeight = '100%';
+                    
+                    // マスクオーバーレイを作成
+                    const maskEl = document.createElement('div');
+                    maskEl.style.position = 'absolute';
+                    maskEl.style.top = '0';
+                    maskEl.style.left = '0';
+                    maskEl.style.width = '100%';
+                    maskEl.style.height = '100%';
+                    // ダークモードかどうかで色を変更
+                    const isDarkMode = document.body.classList.contains('dark');
+                    maskEl.style.backgroundColor = isDarkMode ? 'rgba(40, 40, 50, 1)' : 'rgba(100, 110, 125, 1)';
+                    maskEl.style.transition = 'opacity 0.75s ease';
+                    maskEl.style.pointerEvents = 'none';
+                    maskEl.style.borderRadius = '0px';
+                    
+                    thumbEl.appendChild(imgEl);
+                    thumbEl.appendChild(maskEl);
+                    grid.appendChild(thumbEl);
+                    
+                    // ホバー時のマスクフェードアニメーション
+                    thumbEl.addEventListener('mouseenter', () => {
+                        maskEl.style.opacity = '0';
+                    });
+                    
+                    thumbEl.addEventListener('mouseleave', () => {
+                        maskEl.style.opacity = '1';
+                    });
+                    
+                    // サムネイルクリックイベントを追加
+                    thumbEl.addEventListener('click', () => {
+                        openModal(globalIndex);
+                    });
+                });
+                
+                indicator.textContent = `${photosPage}/${totalPages}`;
+                
+                // ページネーションボタンの有効/無効状態を制御
+                (prevBtn as HTMLButtonElement).disabled = photosPage <= 1;
+                (nextBtn as HTMLButtonElement).disabled = photosPage >= totalPages;
+                
+                // 4. 新しい要素のopacityを1sかけて1にする
+                setTimeout(() => {
+                    grid.classList.add('fade-in');
+                    grid.style.minHeight = '';
+                    grid.style.opacity = '1';
+                }, 10);
+            }, 750); // 0.5s後に古い要素削除と新しい要素追加
+        }
+
+        (function initPhotosPager(){
+            const prev = document.getElementById('prevPage');
+            const next = document.getElementById('nextPage');
+            if (prev) prev.addEventListener('click', () => { photosPage -= 1; renderThumbs(); });
+            if (next) next.addEventListener('click', () => { photosPage += 1; renderThumbs(); });
+        })();
+
+        renderThumbs();
+
+        // ===== テーマ変更時のオーバーレイ色更新 =====
+        function updateMaskColors() {
+            const isDarkMode = document.body.classList.contains('dark');
+            const maskElements = document.querySelectorAll('.thumb');
+            
+            maskElements.forEach((thumbEl) => {
+                const maskEl = thumbEl.querySelector('div[style*="position: absolute"]') as HTMLElement;
+                if (maskEl) {
+                    maskEl.style.backgroundColor = isDarkMode ? 'rgba(40, 40, 50, 1)' : 'rgba(100, 110, 125, 1)';
+                }
+            });
+        }
+
+        // テーマ変更を監視
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    updateMaskColors();
+                }
+            });
+        });
+
+        // body要素のクラス変更を監視
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        // ===== モーダル機能 =====
+        let currentPhotoIndex = 0;
+        const modal = document.getElementById('photoModal') as HTMLDivElement;
+        const modalImage = document.getElementById('modalImage') as HTMLImageElement;
+        const modalClose = document.getElementById('modalClose') as HTMLSpanElement;
+        const modalPrev = document.getElementById('modalPrev') as HTMLAnchorElement;
+        const modalNext = document.getElementById('modalNext') as HTMLAnchorElement;
+
+        function openModal(index: number) {
+            currentPhotoIndex = index;
+            const photo = photosData[currentPhotoIndex];
+            if (!photo) return;
+
+            modalImage.src = photo.image;
+            modalImage.alt = photo.title;
+            modal.style.display = 'block';
+            
+            // フェードインアニメーション
+            setTimeout(() => {
+                modal.classList.add('show');
+                modalImage.classList.add('show');
+            }, 10);
+        }
+
+        function closeModal() {
+            // フェードアウトアニメーション
+            modal.classList.remove('show');
+            modalImage.classList.remove('show');
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        function showNextPhoto() {
+            const nextIndex = (currentPhotoIndex + 1) % photosData.length;
+            showPhoto(nextIndex);
+        }
+
+        function showPrevPhoto() {
+            const prevIndex = currentPhotoIndex === 0 ? photosData.length - 1 : currentPhotoIndex - 1;
+            showPhoto(prevIndex);
+        }
+
+        function showPhoto(index: number) {
+            // フェードアウト
+            modalImage.classList.remove('show');
+            
+            setTimeout(() => {
+                currentPhotoIndex = index;
+                const photo = photosData[currentPhotoIndex];
+                if (photo) {
+                    modalImage.src = photo.image;
+                    modalImage.alt = photo.title;
+                }
+                
+                // フェードイン
+                setTimeout(() => {
+                    modalImage.classList.add('show');
+                }, 10);
+            }, 300);
+        }
+
+        // イベントリスナー
+        modalClose.addEventListener('click', closeModal);
+        modalPrev.addEventListener('click', showPrevPhoto);
+        modalNext.addEventListener('click', showNextPhoto);
+
+        // モーダル外クリックで閉じる
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // ESCキーで閉じる
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'block') {
+                closeModal();
+            }
+        });
+    </script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-primary);
+            background: #fff;
+            color: #222;
+        }
+        body {
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .content-root {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .content-slash {
+            position: absolute;
+            left: 50vw;
+            top: 50vh;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .content-title {
+            position: absolute;
+            left: 30vw;
+            top: 50vh;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            color: #222;
+            z-index: 5;
+        }
+
+        /* arrow-btn 仕様（menu.astroに準拠） */
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #444;
+            /* cursor: url('/book-cursor.png'), pointer; */
+            margin: 0.5rem 0;
+            transition: color 0.2s;
+        }
+        .arrow-btn:hover {
+            color: #888;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            /* cursor: url('/book-cursor.png'), pointer; */
+            transition: color 0.2s;
+        }
+        .back-btn:hover svg path {
+            stroke: #888;
+        }
+        .content-name {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            /* cursor: url('/book-cursor.png'), pointer; */
+        }
+        .content-name:hover {
+            color: #888;
+        }
+
+        /* ダークモード用 */
+        body.dark {
+            background: #1F222D;
+            color: #fff;
+        }
+
+        body.dark .arrow-btn svg path {
+            stroke: #eee;
+        }
+        body.dark .arrow-btn:hover svg path {
+            stroke: #fff;
+        }
+
+
+        /* ===== アイランド（コンテンツコンテナ） ===== */
+        .content-island {
+            position: absolute;
+            left: 55vw;
+            top: 15vh;
+            width: 35vw;   /* aboutに合わせる */
+            height: 65vh;
+            box-sizing: border-box;
+            border: none;
+            padding: 0;
+            overflow: hidden;
+            z-index: 6;
+            background: transparent;
+        }
+        .island-title {
+            position: absolute;
+            left: 5%;
+            top: 5%;
+            font-size: 1.5rem; /* content-nameと同サイズ */
+            letter-spacing: 0.1em;
+        }
+        .island-content {
+            position: absolute;
+            left: 5%;
+            top: 15%;
+            width: 90%;
+            height: 70%;
+            overflow: auto;
+        }
+        /* スクロールバー関連は共通スタイルへ移行（ScrollbarStyles） */
+        .thumb-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 1fr;
+            gap: 0.2rem;
+            width: 100%;
+            max-width: 100%;
+            /* 高さの急激な変化を防ぐ */
+            transition: min-height 0.1s ease-out, opacity 1s ease-in-out;
+        }
+        
+        /* 新しい要素のフェードイン用（1秒） */
+        .thumb-grid.fade-in {
+            transition: opacity 1s ease-in-out;
+        }
+        .thumb {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #ddd;
+            overflow: hidden;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .thumb:hover {
+            transform: scale(1.05);
+        }
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .island-pager {
+            position: absolute;
+            right: 5%;
+            bottom: 5%;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .pager-btn {
+            background: none;
+            border: none;
+            /* cursor: url('/book-cursor.png'), pointer; */ 
+            font-size: 1rem;
+            color: #444;
+        }
+        .pager-btn:hover { color: #888; }
+        .page-indicator { font-size: 0.9rem; }
+        body.dark .content-island { border: none; }
+        body.dark .island-title { color: #eee; }
+        body.dark .thumb-grid { color: #eee; }
+        body.dark .pager-btn { color: #eee; }
+        body.dark .pager-btn:hover { color: #fff; }
+
+        body.dark .content-slash svg path {
+            stroke: #fff;
+        }
+
+        body.dark .content-title {
+            color: #eee;
+        }
+
+        /* ===== モーダルスタイル ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal.show {
+            opacity: 1;
+        }
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 0;
+            width: 90%;
+            max-width: 800px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .modal-image {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-image.show {
+            opacity: 1;
+        }
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: #fff;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            transition: color 0.2s ease;
+        }
+        .modal-close:hover {
+            color: #ccc;
+        }
+        .modal-prev, .modal-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+            padding: 16px;
+            user-select: none;
+            transition: color 0.2s ease;
+        }
+        .modal-prev:hover, .modal-next:hover {
+            color: #ccc;
+        }
+        .modal-prev {
+            left: -60px;
+        }
+        .modal-next {
+            right: -60px;
+        }
+        /* ダークモード対応 */
+        body.dark .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</body>
+</html> 

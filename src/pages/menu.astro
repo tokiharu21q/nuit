@@ -3,9 +3,8 @@
 import CommonHead from '../components/CommonHead.astro';
 import GlobalStyles from '../components/GlobalStyles.astro';
 import CustomCursor from '../components/CustomCursor.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
 import NavigationElements from '../components/NavigationElements.astro';
-import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
 ---
 
 <html lang="ja">
@@ -14,15 +13,21 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="view-transition" content="same-origin" />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
-    <CommonHead title="menu" description="メニュー画面" />
+    <CommonHead title="aonisum" description="メニュー画面" />
     <GlobalStyles />
     <CustomCursor />
 </head>
 <body>
     <div class="menu-root">
-        <!-- アニメーション要素 -->
-        <MenuAnimatedElements />
+        <!-- 月アイコン -->
+        <ThemeToggle position="menu" />
+        
+        <!-- 中央スラッシュ -->
+        <div class="menu-slash" id="menuSlash">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 20 L0 70" stroke="#272727" stroke-width="0.4" stroke-linecap="square"/>
+            </svg>
+        </div>
         
         <!-- コンテンツナビゲーション -->
         <div class="menu-content-nav">
@@ -32,7 +37,7 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
                 </svg>
             </button>
             <div class="menu-content-name-wrapper">
-                <a href="/about" class="menu-content-name" id="contentName">案内</a>
+                <a href="/about" class="menu-content-name" id="contentName">aonisum</a>
             </div>
             <button class="arrow-btn" id="arrowDown" aria-label="次へ">
                 <svg width="24" height="24" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,30 +57,19 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
         <NavigationElements 
             showBackButton={false}
             showCopyright={true}
-            copyrightText="十街©"
+            copyrightText="aonisum©"
             copyrightUrl="/entrance"
         />
     </div>
         <script>
         // コンテンツリスト
         const contents = [
-            { name: '案内', url: '/about' },
-            { name: '筆録', url: '/diary' },
-            { name: '写景', url: '/photos' },
+            { name: 'aonisum', url: '/about' },
+            { name: 'log', url: '/log' },
+            { name: 'photo', url: '/photo' },
         ];
         let current = 0;
 
-        // テーマ状態の保存と復元
-        function saveTheme() {
-            localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-        }
-
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark');
-            }
-        }
 
         // コンテンツ名切り替え処理
         function updateContent(next: number) {
@@ -91,13 +85,14 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
             if (next >= contents.length) next = 0;
             
             // フェードアウト
-            nameEl.classList.remove('fade-in');
             nameEl.classList.add('fade-out');
+            
+            // フェードアウト完了後にコンテンツを更新
             setTimeout(() => {
                 nameEl.textContent = contents[next].name;
                 nameEl.href = contents[next].url;
                 nameEl.classList.remove('fade-out');
-                nameEl.classList.add('fade-in');
+                
                 // ドット更新
                 dotEls.forEach((d, i) => {
                     if (d) {
@@ -105,7 +100,7 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
                     }
                 });
                 current = next;
-            }, 100);
+            }, 300); // 0.5秒のフェードアウト完了を待つ
         }
 
         // 初期化処理
@@ -118,10 +113,6 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
             ];
             const arrowUp = document.getElementById('arrowUp');
             const arrowDown = document.getElementById('arrowDown');
-            const moonBtn = document.getElementById('moonBtn');
-
-            // テーマを復元
-            loadTheme();
 
             // 保存されたコンテンツ名を復元
             const savedContent = localStorage.getItem('currentContent');
@@ -152,28 +143,46 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
                 updateContent(current + 1);
             };
 
-            if (moonBtn) moonBtn.onclick = () => {
-                document.body.classList.toggle('dark');
-                saveTheme();
-            };
-
             if (nameEl) nameEl.onclick = () => {
                 localStorage.setItem('currentContent', contents[current].name);
             };
         }
 
+        // ブラウザ履歴APIとの連携
+        window.addEventListener('popstate', (event) => {
+            // ブラウザの戻る/進む操作時に状態を復元
+            const savedContent = localStorage.getItem('currentContent');
+            if (savedContent) {
+                const savedIndex = contents.findIndex(c => c.name === savedContent);
+                if (savedIndex !== -1) {
+                    current = savedIndex;
+                    updateContent(current);
+                }
+            }
+        });
+
         // 初期化
         initializeMenu();
 
-        // View Transitions対応：ページ遷移後に再初期化
-        document.addEventListener('astro:after-swap', initializeMenu);
+        // View Transitions対応
+        document.addEventListener('astro:page-load', () => {
+            // ページロード完了後に状態を復元
+            setTimeout(() => {
+                initializeMenu();
+            }, 100);
+        });
+
+        document.addEventListener('astro:after-swap', () => {
+            // View Transitions完了後に状態を復元
+            initializeMenu();
+        });
     </script>
     <style>
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            font-family: 'Noto Serif JP', serif;
+            font-family: var(--font-primary);
             background: #fff;
             color: #222;
         }
@@ -185,6 +194,14 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+        }
+
+        .menu-slash {
+            position: absolute;
+            left: 50vw;
+            top: 50vh;
+            transform: translate(-50%, -50%);
+            z-index: 1;
         }
 
 
@@ -205,7 +222,7 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
             border: none;
             font-size: 2rem;
             color: #444;
-            cursor: url('/book-cursor.png'), pointer;
+            /* cursor: url('/book-cursor.png'), pointer; */
             margin: 0.5rem 0;
             transition: color 0.2s;
         }
@@ -223,36 +240,23 @@ import MenuAnimatedElements from '../components/MenuAnimatedElements.astro';
         }
 
         .menu-content-name {
-            font-size: 1.5rem;
-            font-weight: 400;
+            font-size: 1.2rem;
+            font-weight: 300;
             letter-spacing: 0.1em;
-            cursor: url('/book-cursor.png'), pointer;
+            /* cursor: url('/book-cursor.png'), pointer; */
             opacity: 1;
             display: inline-block;
             background: none;
             border: none;
             outline: none;
-            transition: color 0.2s;
-            view-transition-name: content-name;
-        }
-
-        .menu-content-name.fade-in {
-            animation: fadeIn 0.2s;
+            transition: opacity 0.5s ease-in-out;
         }
 
         .menu-content-name.fade-out {
-            animation: fadeOut 0.2s;
+            opacity: 0;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
 
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
 
         .menu-dots {
             position: absolute;

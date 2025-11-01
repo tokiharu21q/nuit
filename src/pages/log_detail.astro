@@ -1,0 +1,225 @@
+---
+// 記事詳細画面
+import CommonHead from '../components/CommonHead.astro';
+import GlobalStyles from '../components/GlobalStyles.astro';
+import ScrollbarStyles from '../components/ScrollbarStyles.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import NavigationElements from '../components/NavigationElements.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import { getCollection } from 'astro:content';
+
+// URLパラメータから記事IDを取得
+const idParam = Astro.url.searchParams.get('id');
+const articleId = idParam ? parseInt(idParam) : 1;
+
+// デバッグ: URLパラメータの確認
+console.log('=== log_detail.astro デバッグ ===');
+console.log('URL:', Astro.url.href);
+console.log('idParam:', idParam);
+console.log('articleId:', articleId);
+
+// Content Collectionsから記事データを取得
+const allEntries = await getCollection('202509');
+const targetEntry = allEntries[articleId - 1]; // IDは1から始まるため、配列インデックスは-1
+
+// デバッグ: 記事データの確認
+console.log('allEntries length:', allEntries.length);
+console.log('target index:', articleId - 1);
+console.log('targetEntry:', targetEntry ? {
+    title: targetEntry.data.title,
+    date: targetEntry.data.date
+} : 'NOT FOUND');
+
+// 記事が見つからない場合の処理
+if (!targetEntry) {
+    throw new Error(`Article with ID ${articleId} not found`);
+}
+
+// 記事データを準備
+const articleData = {
+    id: articleId,
+    date: targetEntry.data.date,
+    title: targetEntry.data.title,
+    summary: targetEntry.data.summary,
+    tags: targetEntry.data.tags,
+    content: targetEntry.body
+};
+---
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="view-transition" content="same-origin" />
+    <CommonHead title="記事詳細" description="記事詳細" />
+    <GlobalStyles />
+    <ScrollbarStyles />
+    <CustomCursor />
+</head>
+<body>
+    <div class="content-root">
+        <!-- メニュー戻るボタン（リンク遷移でView Transition発火） -->
+        <NavigationElements 
+            showBackButton={true}
+            backButtonUrl="/log"
+            backButtonLabel="記事一覧に戻る"
+            showCopyright={true}
+            copyrightText="aonisum©"
+            copyrightUrl="/entrance"
+        />
+        
+        <!-- 月アイコン -->
+        <ThemeToggle position="content" />
+        
+        <!-- アイランド: 記事詳細コンテナ -->
+        <section class="content-island" id="articleIsland">
+            <header class="island-title" id="articleIslandTitle">
+                <div class="article-date" id="articleDate">{new Date(articleData.date).getFullYear()}.{String(new Date(articleData.date).getMonth() + 1).padStart(2, '0')}.{String(new Date(articleData.date).getDate()).padStart(2, '0')}</div>
+                <div class="article-title" id="articleTitle">{articleData.title}</div>
+            </header>
+            <div class="island-content">
+                <div class="article-content" id="articleContent" set:html={articleData.content}></div>
+                <div class="scrollbar-mask" aria-hidden="true"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        import { initCustomScrollbars } from '../components/ScrollbarClient';
+        // カスタムスクロールバー（スクロール時のみ表示）
+        initCustomScrollbars();
+    </script>
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-primary);
+            background: #fff;
+            color: #222;
+        }
+        body {
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+        .content-root {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* arrow-btn 仕様（menu.astroに準拠） */
+        .arrow-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #444;
+            /* cursor: url('/book-cursor.png'), pointer; */
+            margin: 0.5rem 0;
+            transition: color 0.2s;
+        }
+        .arrow-btn:hover {
+            color: #888;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            /* cursor: url('/book-cursor.png'), pointer; */
+            transition: color 0.2s;
+        }
+        .back-btn:hover svg path {
+            stroke: #888;
+        }
+        .content-name {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            /* cursor: url('/book-cursor.png'), pointer; */
+        }
+        .content-name:hover {
+            color: #888;
+        }
+
+        /* ダークモード用 */
+        body.dark {
+            background: #1F222D;
+            color: #fff;
+        }
+
+        body.dark .arrow-btn svg path {
+            stroke: #eee;
+        }
+        body.dark .arrow-btn:hover svg path {
+            stroke: #fff;
+        }
+
+
+        /* ===== アイランド（コンテンツコンテナ） ===== */
+        .content-island {
+            position: absolute;
+            left: 55vw;
+            top: 15vh;
+            width: 35vw;   /* aboutに合わせる */
+            height: 65vh;
+            box-sizing: border-box;
+            border: none;
+            padding: 0;
+            overflow: hidden;
+            z-index: 6;
+            background: transparent;
+        }
+        .island-title {
+            position: absolute;
+            left: 5%;
+            top: 5%;
+            font-size: 1.5rem; /* content-nameと同サイズ */
+            letter-spacing: 0.1em;
+        }
+        .island-content {
+            position: absolute;
+            left: 5%;
+            top: 25%;
+            width: 90%;
+            height: 70%;
+            overflow: auto;
+        }
+        /* スクロールバー関連は共通スタイルへ移行（ScrollbarStyles） */
+        
+        /* 記事詳細用スタイル */
+        .article-date {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .article-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+        
+        .article-content {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .article-content p {
+            margin-bottom: 1.2rem;
+        }
+        
+        .article-content p:last-child {
+            margin-bottom: 0;
+        }
+        
+        body.dark .content-island { border: none; }
+        body.dark .island-title { color: #eee; }
+        body.dark .article-date { color: #aaa; }
+        body.dark .article-content { color: #eee; }
+    </style>
+</body>
+</html>

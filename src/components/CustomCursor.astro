@@ -19,6 +19,8 @@
     }
   }
   
+  /* 現在のカスタムカーソル（円形と四角形）を無効化 */
+  /*
   .cursor-outer {
     width: 27px;
     height: 27px;
@@ -44,25 +46,47 @@
     transition: left 0.1s ease, top 0.1s ease, transform 0.1s ease; 
     opacity: 0;
   }
+  */
+
+  /* 新しい正方形カーソル */
+  .cursor-square {
+    width: 15px;
+    height: 15px;
+    border: 1px solid #1F222D;
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    transition: left 0.1s ease, top 0.1s ease, transform 0.25s ease; 
+    opacity: 0;
+  }
   
   /* カスタムカーソルが有効になった時のスタイル */
-  .custom-cursor-active .cursor-outer,
-  .custom-cursor-active .cursor-inner {
+  .custom-cursor-active .cursor-square {
     opacity: 1;
+    border-color: #1F222D;
   }
   
   .custom-cursor-active * {
     cursor: none !important;
   }
   
-
-  
-  /* ダークモード時のカーソルカラー反転 */
-  body.dark .cursor-outer {
-    border-color: #ffffff;
+  /* より強力なカーソル非表示ルール */
+  .custom-cursor-active,
+  .custom-cursor-active *,
+  .custom-cursor-active a,
+  .custom-cursor-active button,
+  .custom-cursor-active [data-hover] {
+    cursor: none !important;
   }
   
-  body.dark .cursor-inner {
+  /* ホバー時の透明度 */
+  /* .cursor-square:hover,
+  .custom-cursor-active .cursor-square[style*="rotate"] {
+    opacity: 0.45 !important;
+  }
+   */
+  /* ダークモード時のカーソルカラー反転 */
+  body.dark .cursor-square {
     border-color: #ffffff;
   }
 
@@ -75,8 +99,7 @@
 <script>
   // カスタムカーソル機能
   class CustomCursor {
-    private outer: HTMLElement | null = null;
-    private inner: HTMLElement | null = null;
+    private square: HTMLElement | null = null;
     private isActive: boolean = false;
     
     constructor() {
@@ -94,49 +117,55 @@
     }
     
     createElements() {
-      this.outer = document.createElement('div');
-      this.inner = document.createElement('div');
-      
-      this.outer.className = 'cursor-outer';
-      this.inner.className = 'cursor-inner';
-      
-      document.body.appendChild(this.outer);
-      document.body.appendChild(this.inner);
+      this.square = document.createElement('div');
+      this.square.className = 'cursor-square';
+      document.body.appendChild(this.square);
     }
     
     bindEvents() {
       // マウス追従とカスタムカーソルの有効化
       document.addEventListener('mousemove', (e) => {
-        if (this.outer && this.inner) {
+        if (this.square) {
           // カスタムカーソルを有効化
           if (!this.isActive) {
             this.activateCustomCursor();
           }
           
           // カーソル位置を更新
-          this.outer.style.left = (e.clientX - 28) + 'px';
-          this.outer.style.top = (e.clientY - 28) + 'px';
-          this.inner.style.left = (e.clientX - 11) + 'px';
-          this.inner.style.top = (e.clientY - 11) + 'px';
+          this.square.style.left = (e.clientX - 11) + 'px';
+          this.square.style.top = (e.clientY - 11) + 'px';
         }
       });
 
-      // ホバー効果
-      document.querySelectorAll('a, button, [data-hover]').forEach(element => {
-        element.addEventListener('mouseenter', () => {
-          if (this.outer) this.outer.style.transform = 'scale(1.12)';
-          if (this.inner) this.inner.style.transform = 'scale(1.12)';
-        });
-        element.addEventListener('mouseleave', () => {
-          if (this.outer) this.outer.style.transform = '';
-          if (this.inner) this.inner.style.transform = '';
-        });
-      });
+      // ホバー効果（135度回転）
+      document.addEventListener('mouseenter', (e) => {
+        const target = e.target as HTMLElement;
+        if (target && (target.tagName === 'A' || target.tagName === 'BUTTON' || target.hasAttribute('data-hover'))) {
+          if (this.square) {
+            this.square.style.transform = 'rotate(135deg)';
+            this.square.style.opacity = '0.85';
+          }
+        }
+      }, true);
+      
+      document.addEventListener('mouseleave', (e) => {
+        const target = e.target as HTMLElement;
+        if (target && (target.tagName === 'A' || target.tagName === 'BUTTON' || target.hasAttribute('data-hover'))) {
+          if (this.square) {
+            this.square.style.transform = 'rotate(0deg)';
+            this.square.style.opacity = '1';
+          }
+        }
+      }, true);
     }
     
     activateCustomCursor() {
       this.isActive = true;
       document.documentElement.classList.add('custom-cursor-active');
+      
+      // より確実にデフォルトカーソルを非表示にする
+      document.body.style.cursor = 'none';
+      document.documentElement.style.cursor = 'none';
     }
   }
 

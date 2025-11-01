@@ -2,7 +2,7 @@
 import CommonHead from '../components/CommonHead.astro';
 import GlobalStyles from '../components/GlobalStyles.astro';
 import CustomCursor from '../components/CustomCursor.astro';
-import NavigationElements from '../components/NavigationElements.astro';
+import NavigationElementsEntrance from '../components/NavigationElementsEntrance.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 ---
 
@@ -12,8 +12,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="view-transition" content="same-origin" />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
-    <CommonHead title="unique/ubique" description="エントランス画面" />
+    <CommonHead title="aonisum" description="エントランス画面" />
     <GlobalStyles />
     <CustomCursor />
 </head>
@@ -27,15 +26,15 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             <!-- 1. ファイルベースルーティング（基本実装） -->
             <div class="view-block" id="viewBlock">
                 <div class="line"></div>
-                <a href="/menu" class="view-text" id="viewText">閲覧</a>
+                <a href="/menu" class="view-text" id="viewText">ent</a>
                 <div class="line"></div>
             </div> 
 
             <!-- コピーライト -->
-            <NavigationElements 
+            <NavigationElementsEntrance 
                 showBackButton={false}
                 showCopyright={true}
-                copyrightText="十街©"
+                copyrightText="aonisum©"
                 copyrightUrl="/entrance"
             />
         </div>
@@ -74,11 +73,11 @@ import ThemeToggle from '../components/ThemeToggle.astro';
         }
         .view-text {
             font-size: 1.2rem;
-            font-weight: 500;
+            font-weight: 300;
             color: #444;
             letter-spacing: 0.1em;
-            margin: 0.2rem 0;
-            cursor: url('/book-cursor.png'), pointer;
+            margin: 0.5rem 0;
+            /* cursor: url('/book-cursor.png'), pointer; */
             background: none;
             border: none;
             outline: none;

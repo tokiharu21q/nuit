@@ -36,14 +36,22 @@ const { className = "", position = "content" } = Astro.props;
   }
 
   // テーマ復元とトグル
-  loadTheme();
-  const moonBtn = document.getElementById('moonBtn');
-  if (moonBtn) {
-    moonBtn.onclick = () => {
-      document.body.classList.toggle('dark');
-      saveTheme();
-    };
+  function initializeTheme() {
+    loadTheme();
+    const moonBtn = document.getElementById('moonBtn');
+    if (moonBtn) {
+      moonBtn.onclick = () => {
+        document.body.classList.toggle('dark');
+        saveTheme();
+      };
+    }
   }
+
+  // 初期化
+  initializeTheme();
+
+  // View Transitions対応：ページ遷移後に再初期化
+  document.addEventListener('astro:after-swap', initializeTheme);
 </script>
 
 <style>
@@ -55,7 +63,6 @@ const { className = "", position = "content" } = Astro.props;
     align-items: center;
     justify-content: center;
     z-index: 5;
-    view-transition-name: moon-button;
   }
 
   /* entrance.astro用の位置 */

@@ -15,7 +15,7 @@ const {
   backButtonUrl = "/menu",
   backButtonLabel = "メニューに戻る",
   showCopyright = true,
-  copyrightText = "十街©",
+  copyrightText = "aonisum©",
   copyrightUrl = "/entrance",
   className = ""
 } = Astro.props;
@@ -35,6 +35,35 @@ const {
   <a href={copyrightUrl} class={`copyright ${className}`} id="copyright">{copyrightText}</a>
 )}
 
+<script>
+  // 戻るボタンクリック時の状態保存処理
+  function setupBackButton() {
+    const backButton = document.getElementById('backToMenu');
+    if (backButton) {
+      // 現在のページパスからコンテンツ名を特定
+      const currentPath = window.location.pathname;
+      const contentMap: { [key: string]: string } = {
+        '/about': 'aonisum',
+        '/log': 'log',
+        '/photo': 'photo'
+      };
+      const currentContent = contentMap[currentPath];
+      
+      if (currentContent) {
+        backButton.addEventListener('click', () => {
+          localStorage.setItem('currentContent', currentContent);
+        });
+      }
+    }
+  }
+
+  // 初期化
+  setupBackButton();
+
+  // View Transitions対応：ページ遷移後に再初期化
+  document.addEventListener('astro:after-swap', setupBackButton);
+</script>
+
 <style>
   /* arrow-btn 仕様（menu.astroに準拠） */
   .arrow-btn {
@@ -42,7 +71,8 @@ const {
     border: none;
     font-size: 2rem;
     color: #444;
-    cursor: url('/book-cursor.png'), pointer;
+    /* opacity: 0.1; */
+    /* cursor: url('/book-cursor.png'), pointer; */
     margin: 0.5rem 0;
     transition: color 0.2s;
   }
@@ -64,12 +94,13 @@ const {
     position: fixed;
     right: 2vw;
     bottom: 1.5vh;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    font-weight: 300;
     color: #272727;
-    font-family: 'Noto Serif JP', serif;
+    font-family: var(--font-primary);
     letter-spacing: 0.1em;
     z-index: 10;
-    cursor: url('/book-cursor.png'), pointer;
+    /* cursor: url('/book-cursor.png'), pointer; */
     background: none;
     border: none;
     outline: none;

@@ -119,7 +119,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             const indicator = document.getElementById('pageIndicator');
             const prevBtn = document.getElementById('prevPage');
             const nextBtn = document.getElementById('nextPage');
-            const isMobileViewport = window.matchMedia('(max-width: 480px)').matches;
+            const isMobileViewport = window.matchMedia('(max-width: 599px)').matches;
             
             if (!grid || !indicator || !prevBtn || !nextBtn) return;
             
@@ -493,7 +493,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 height: auto;
                 min-height: 100vh;
                 overflow: visible;
@@ -506,7 +506,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 display: none !important;
             }
         }
@@ -521,7 +521,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             letter-spacing: 0.1em;
             color: #222;
             z-index: 5;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 left: 50%;
                 top: 25vh;
@@ -542,7 +542,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             cursor: pointer;
             margin: 0.5rem 0;
             transition: color 0.2s;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 cursor:not-allowed;
             }
         }
@@ -596,7 +596,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             overflow: hidden;
             z-index: 6;
             background: transparent;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 left: 50vw;
                 top: 51vh;
@@ -612,7 +612,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             top: 5%;
             font-size: 1.5rem; /* content-nameと同サイズ */
             letter-spacing: 0.1em;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 margin: 2rem 0rem 0rem 0rem;
             }
         }
@@ -623,7 +623,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             width: 90%;
             height: 70%;
             overflow: auto;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 margin-top: 2rem;
             }
@@ -677,7 +677,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             display: flex;
             align-items: center;
             gap: 0.6rem;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 left: 52vw;
                 top: 55vh;
@@ -694,7 +694,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
         .pager-btn:hover { color: #888; }
         .page-indicator { 
             font-size: 0.9rem;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 font-size: 1.1rem;
             }
         }
@@ -736,7 +736,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             max-width: 800px;
             top: 50%;
             transform: translateY(-50%);
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 touch-action: pan-y;
             }
         }
@@ -761,7 +761,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             cursor: pointer;
             z-index: 1001;
             transition: color 0.2s ease;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 top: -30px;
                 right: 0;
@@ -789,7 +789,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
         }
         .modal-prev {
             left: -60px;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 top: auto;
                 bottom: -30px;
                 left: 90%;
@@ -801,7 +801,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
         }
         .modal-next {
             right: -60px;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 top: auto;
                 bottom: -30px;
                 right: 2%;

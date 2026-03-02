@@ -303,7 +303,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 height: auto;
                 min-height: 100vh;
                 overflow: visible;
@@ -316,7 +316,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 display: none !important;
             }
         }
@@ -331,7 +331,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             letter-spacing: 0.1em;
             color: #222;
             z-index: 5;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 left: 50%;
                 top: 25vh;
@@ -404,7 +404,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             overflow: hidden;
             z-index: 6;
             background: transparent;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 left: 50vw;
                 top: 51vh;
@@ -421,7 +421,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             top: 5%;
             font-size: 1.2rem; /* content-nameと同サイズ */
             letter-spacing: 0.1em;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 margin: 2rem 0rem 0rem 0rem;
             }
         }
@@ -432,7 +432,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             width: 90%;
             height: 70%;
             overflow: auto;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 margin-top: 2rem;
             }
@@ -445,7 +445,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             /* 高さの急激な変化を防ぐ */
             transition: min-height 0.1s ease-out, opacity 1s ease-in-out;
             margin-top: 7.7rem;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 margin: 0rem 4rem 0rem 0rem;
                 max-height: 50vh;
             }
@@ -484,7 +484,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             display: flex;
             align-items: center;
             gap: 0.6rem;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 position: absolute;
                 left: 50vw;
                 top: 55vh;
@@ -508,7 +508,7 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
         }
         .page-indicator { 
             font-size: 0.9rem;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 font-size: 1.1rem;
             }
         }

@@ -110,7 +110,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             const area = document.querySelector('.menu-root');
             if (!area) return;
 
-            const mql = window.matchMedia('(max-width: 480px)');
+            const mql = window.matchMedia('(max-width: 599px)');
             if (!mql.matches) return; // 480px以下の場合のみ有効
 
             // 既存のイベントリスナーを削除（重複防止）
@@ -231,7 +231,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
         });
 
         // メディアクエリ変更時のスワイプ処理再初期化
-        const mql = window.matchMedia('(max-width: 480px)');
+        const mql = window.matchMedia('(max-width: 599px)');
         mql.addEventListener ? mql.addEventListener('change', () => {
             if (mql.matches) initializeSwipe();
         }) : mql.addListener(() => {
@@ -263,7 +263,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 display: none;
             }
         }
@@ -279,7 +279,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             align-items: center;
             justify-content: center;
             z-index: 5;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 left: 50%;
                 top: 50%;
             }
@@ -293,7 +293,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             /* cursor: url('/book-cursor.png'), pointer; */
             margin: 0.5rem 0;
             transition: color 0.2s;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 display: none;
             }
         }
@@ -347,7 +347,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             background: #ccc;
             opacity: 0.5;
             transition: background 0.2s, opacity 0.2s;
-            @media (max-width: 480px) {
+            @media (max-width: 599px) {
                 width: 7px;
                 height: 7px;
                 margin-right: 0.5em;

@@ -100,7 +100,57 @@ import ThemeToggle from '../components/ThemeToggle.astro';
                     }
                 });
                 current = next;
+                // localStorageに現在のコンテンツ名を保存
+                localStorage.setItem('currentContent', contents[next].name);
             }, 300); // 0.5秒のフェードアウト完了を待つ
+        }
+
+        // スワイプ処理の初期化関数（initializeMenuから呼び出し可能）
+        function initializeSwipe() {
+            const area = document.querySelector('.menu-root');
+            if (!area) return;
+
+            const mql = window.matchMedia('(max-width: 480px)');
+            if (!mql.matches) return; // 480px以下の場合のみ有効
+
+            // 既存のイベントリスナーを削除（重複防止）
+            const existingHandlers = (area as any).__swipeHandlers;
+            if (existingHandlers) {
+                area.removeEventListener('touchstart', existingHandlers.start);
+                area.removeEventListener('touchend', existingHandlers.end);
+            }
+
+            let x0 = 0, y0 = 0, t0 = 0;
+            const THRESHOLD = 40;
+            const MAX_TIME = 600;
+            const DRIFT_RATIO = 1.5;
+
+            const onTouchStart: EventListener = (ev) => {
+                const e = ev as TouchEvent;
+                const t = e.touches[0];
+                if (!t) return;
+                x0 = t.clientX; y0 = t.clientY; t0 = Date.now();
+            };
+
+            const onTouchEnd: EventListener = (ev) => {
+                const e = ev as TouchEvent;
+                const t = e.changedTouches[0];
+                if (!t) return;
+                const dx = t.clientX - x0;
+                const dy = t.clientY - y0;
+                const dt = Date.now() - t0;
+                if (dt > MAX_TIME) return;
+                if (Math.abs(dy) < THRESHOLD) return;
+                if (Math.abs(dy) <= Math.abs(dx) * DRIFT_RATIO) return;
+                // arrowUp/arrowDownと同じようにcurrent変数を直接参照
+                if (dy < 0) { updateContent(current + 1); } else { updateContent(current - 1); }
+            };
+
+            area.addEventListener('touchstart', onTouchStart, { passive: true });
+            area.addEventListener('touchend', onTouchEnd, { passive: true });
+
+            // ハンドラを保存（次回削除用）
+            (area as any).__swipeHandlers = { start: onTouchStart, end: onTouchEnd };
         }
 
         // 初期化処理
@@ -146,6 +196,9 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             if (nameEl) nameEl.onclick = () => {
                 localStorage.setItem('currentContent', contents[current].name);
             };
+
+            // スワイプ処理を初期化（currentが更新された後に実行）
+            initializeSwipe();
         }
 
         // ブラウザ履歴APIとの連携
@@ -176,6 +229,14 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             // View Transitions完了後に状態を復元
             initializeMenu();
         });
+
+        // メディアクエリ変更時のスワイプ処理再初期化
+        const mql = window.matchMedia('(max-width: 480px)');
+        mql.addEventListener ? mql.addEventListener('change', () => {
+            if (mql.matches) initializeSwipe();
+        }) : mql.addListener(() => {
+            if (mql.matches) initializeSwipe();
+        });
     </script>
     <style>
         html, body {
@@ -202,6 +263,9 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
+            @media (max-width: 480px) {
+                display: none;
+            }
         }
 
 
@@ -215,6 +279,10 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             align-items: center;
             justify-content: center;
             z-index: 5;
+            @media (max-width: 480px) {
+                left: 50%;
+                top: 50%;
+            }
         }
 
         .arrow-btn {
@@ -225,6 +293,9 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             /* cursor: url('/book-cursor.png'), pointer; */
             margin: 0.5rem 0;
             transition: color 0.2s;
+            @media (max-width: 480px) {
+                display: none;
+            }
         }
 
         .arrow-btn:hover {
@@ -276,6 +347,11 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             background: #ccc;
             opacity: 0.5;
             transition: background 0.2s, opacity 0.2s;
+            @media (max-width: 480px) {
+                width: 7px;
+                height: 7px;
+                margin-right: 0.5em;
+            }
         }
 
         .dot.active {

@@ -104,11 +104,22 @@ const photosData = sortedPhotos.map((photo, index) => ({
         // サーバーサイドで取得した写真データを使用
         const photosData = JSON.parse(document.getElementById('photos-data')?.textContent || '[]');
 
+        function resetTouchReveals() {
+            document.querySelectorAll('.thumb[data-tap-revealed="true"]').forEach((el) => {
+                el.removeAttribute('data-tap-revealed');
+                const mask = el.querySelector('.thumb-mask');
+                if (mask instanceof HTMLElement) {
+                    mask.style.opacity = '1';
+                }
+            });
+        }
+
         function renderThumbs() {
             const grid = document.getElementById('thumbGrid');
             const indicator = document.getElementById('pageIndicator');
             const prevBtn = document.getElementById('prevPage');
             const nextBtn = document.getElementById('nextPage');
+            const isMobileViewport = window.matchMedia('(max-width: 480px)').matches;
             
             if (!grid || !indicator || !prevBtn || !nextBtn) return;
             
@@ -147,8 +158,8 @@ const photosData = sortedPhotos.map((photo, index) => ({
                     // 動的にスタイルを適用
                     thumbEl.style.width = '100%';
                     thumbEl.style.aspectRatio = '1 / 1';
-                    thumbEl.style.background = '#ddd';
-                    thumbEl.style.overflow = 'hidden';
+                    thumbEl.style.background = '#1F222D';
+                    thumbEl.style.overflow = 'overflow';
                     thumbEl.style.borderRadius = '0px';
                     thumbEl.style.cursor = 'pointer';
                     thumbEl.style.transition = 'transform 0.2s ease';
@@ -162,23 +173,28 @@ const photosData = sortedPhotos.map((photo, index) => ({
                     imgEl.loading = 'lazy';
                     
                     // 画像要素に動的にスタイルを適用
-                    imgEl.style.width = '100%';
-                    imgEl.style.height = '100%';
+                    imgEl.style.width = '99%';
+                    imgEl.style.height = '99%';
+                    imgEl.style.margin = '0.5px';
                     imgEl.style.objectFit = 'cover';
                     imgEl.style.display = 'block';
-                    imgEl.style.maxWidth = '100%';
-                    imgEl.style.maxHeight = '100%';
+                    imgEl.style.maxWidth = '99%';
+                    imgEl.style.maxHeight = '99%';
                     
                     // マスクオーバーレイを作成
                     const maskEl = document.createElement('div');
+                    maskEl.className = 'thumb-mask';
                     maskEl.style.position = 'absolute';
-                    maskEl.style.top = '0';
-                    maskEl.style.left = '0';
-                    maskEl.style.width = '100%';
-                    maskEl.style.height = '100%';
+                    maskEl.style.top = '-0.5px';
+                    maskEl.style.left = '-0.5px';
+                    maskEl.style.right = '-0.5px';
+                    maskEl.style.bottom = '-0.5px';
                     // ダークモードかどうかで色を変更
                     const isDarkMode = document.body.classList.contains('dark');
-                    maskEl.style.backgroundColor = isDarkMode ? 'rgba(40, 40, 50, 1)' : 'rgba(100, 110, 125, 1)';
+                    const maskColorLight = 'rgba(100, 110, 125, 1)';
+                    const maskColorDark = 'rgba(40, 40, 50, 1)';
+                    maskEl.style.backgroundColor = isDarkMode ? maskColorDark : maskColorLight;
+                    thumbEl.style.background = isDarkMode ? '#1F222D' : maskColorLight;
                     maskEl.style.transition = 'opacity 0.75s ease';
                     maskEl.style.pointerEvents = 'none';
                     maskEl.style.borderRadius = '0px';
@@ -187,19 +203,38 @@ const photosData = sortedPhotos.map((photo, index) => ({
                     thumbEl.appendChild(maskEl);
                     grid.appendChild(thumbEl);
                     
-                    // ホバー時のマスクフェードアニメーション
-                    thumbEl.addEventListener('mouseenter', () => {
-                        maskEl.style.opacity = '0';
-                    });
-                    
-                    thumbEl.addEventListener('mouseleave', () => {
-                        maskEl.style.opacity = '1';
-                    });
-                    
-                    // サムネイルクリックイベントを追加
-                    thumbEl.addEventListener('click', () => {
-                        openModal(globalIndex);
-                    });
+                    if (!isMobileViewport) {
+                        // ホバー時のマスクフェードアニメーション
+                        thumbEl.addEventListener('mouseenter', () => {
+                            maskEl.style.opacity = '0';
+                        });
+
+                        thumbEl.addEventListener('mouseleave', () => {
+                            maskEl.style.opacity = '1';
+                        });
+
+                        // サムネイルクリックイベントを追加
+                        thumbEl.addEventListener('click', () => {
+                            openModal(globalIndex);
+                        });
+                    } else {
+                        // タップ操作: 1回目でカバー解除、2回目で拡大
+                        thumbEl.addEventListener('click', (event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            const isRevealed = thumbEl.dataset.tapRevealed === 'true';
+                            if (!isRevealed) {
+                                resetTouchReveals();
+                                thumbEl.dataset.tapRevealed = 'true';
+                                maskEl.style.opacity = '0';
+                                return;
+                            }
+
+                            openModal(globalIndex);
+                            resetTouchReveals();
+                        });
+                    }
                 });
                 
                 indicator.textContent = `${photosPage}/${totalPages}`;
@@ -232,9 +267,12 @@ const photosData = sortedPhotos.map((photo, index) => ({
             const maskElements = document.querySelectorAll('.thumb');
             
             maskElements.forEach((thumbEl) => {
-                const maskEl = thumbEl.querySelector('div[style*="position: absolute"]') as HTMLElement;
+                const maskEl = thumbEl.querySelector('.thumb-mask') as HTMLElement;
                 if (maskEl) {
                     maskEl.style.backgroundColor = isDarkMode ? 'rgba(40, 40, 50, 1)' : 'rgba(100, 110, 125, 1)';
+                }
+                if (thumbEl instanceof HTMLElement) {
+                    (thumbEl as HTMLElement).style.background = isDarkMode ? '#1F222D' : 'rgba(100, 110, 125, 1)';
                 }
             });
         }
@@ -285,6 +323,7 @@ const photosData = sortedPhotos.map((photo, index) => ({
             
             setTimeout(() => {
                 modal.style.display = 'none';
+                resetTouchReveals();
             }, 300);
         }
 
@@ -335,6 +374,106 @@ const photosData = sortedPhotos.map((photo, index) => ({
                 closeModal();
             }
         });
+
+        // ===== モーダル用スワイプ操作（480px以下を想定） =====
+        (function enableModalSwipe(){
+            if (!modal || !modalImage) return;
+
+            const modalElement = document.querySelector('.modal');
+            const modalContent = document.querySelector('.modal-content');
+            /** @type {HTMLElement[]} */
+            const swipeTargets = [];
+            if (modalImage instanceof HTMLElement) swipeTargets.push(modalImage);
+            if (modalContent instanceof HTMLElement) swipeTargets.push(modalContent);
+            if (modalElement instanceof HTMLElement) swipeTargets.push(modalElement);
+
+            let startX = 0;
+            let startY = 0;
+            let startTime = 0;
+            let swipeHandled = false;
+            const SWIPE_THRESHOLD = 40;
+            const SWIPE_MAX_TIME = 600;
+            const ANGLE_ALLOWANCE = 30; // 縦方向の許容角度
+
+            // @ts-ignore - inline script without TypeScript definitions
+            function onTouchStart(ev) {
+                const event = /** @type {TouchEvent} */ (ev);
+                const touch = event.touches && event.touches[0];
+                if (!touch) return;
+                startX = touch.clientX;
+                startY = touch.clientY;
+                startTime = Date.now();
+                swipeHandled = false;
+            }
+
+            // @ts-ignore - inline script without TypeScript definitions
+            function onTouchEnd(ev) {
+                const event = /** @type {TouchEvent} */ (ev);
+                if (modal.style.display !== 'block') return;
+                const touch = event.changedTouches && event.changedTouches[0];
+                if (!touch) return;
+                if (swipeHandled) return;
+
+                const deltaX = touch.clientX - startX;
+                const deltaY = touch.clientY - startY;
+                const deltaTime = Date.now() - startTime;
+
+                if (deltaTime > SWIPE_MAX_TIME) return;
+                if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+
+                const angle = Math.atan2(Math.abs(deltaY), Math.abs(deltaX)) * 180 / Math.PI;
+                if (angle > ANGLE_ALLOWANCE) return; // ほぼ水平のスワイプのみ
+
+                if (deltaX < 0) {
+                    showNextPhoto();
+                } else {
+                    showPrevPhoto();
+                }
+                swipeHandled = true;
+            }
+
+            swipeTargets.forEach((target) => {
+                target.addEventListener('touchstart', onTouchStart, { passive: true });
+                target.addEventListener('touchend', onTouchEnd, { passive: true });
+                target.addEventListener('touchcancel', onTouchEnd, { passive: true });
+                target.addEventListener('pointerdown', onPointerDown, { passive: true });
+                target.addEventListener('pointerup', onPointerUp, { passive: true });
+                target.addEventListener('pointercancel', onPointerUp, { passive: true });
+            });
+
+            // @ts-ignore - inline script without TypeScript definitions
+            function onPointerDown(ev) {
+                if (ev.pointerType !== 'mouse') return;
+                startX = ev.clientX;
+                startY = ev.clientY;
+                startTime = Date.now();
+                swipeHandled = false;
+            }
+
+            // @ts-ignore - inline script without TypeScript definitions
+            function onPointerUp(ev) {
+                if (ev.pointerType !== 'mouse') return;
+                if (modal.style.display !== 'block') return;
+                if (swipeHandled) return;
+
+                const deltaX = ev.clientX - startX;
+                const deltaY = ev.clientY - startY;
+                const deltaTime = Date.now() - startTime;
+
+                if (deltaTime > SWIPE_MAX_TIME) return;
+                if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
+
+                const angle = Math.atan2(Math.abs(deltaY), Math.abs(deltaX)) * 180 / Math.PI;
+                if (angle > ANGLE_ALLOWANCE) return;
+
+                if (deltaX < 0) {
+                    showNextPhoto();
+                } else {
+                    showPrevPhoto();
+                }
+                swipeHandled = true;
+            }
+        })();
     </script>
 
     <style>
@@ -354,6 +493,11 @@ const photosData = sortedPhotos.map((photo, index) => ({
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            @media (max-width: 480px) {
+                height: auto;
+                min-height: 100vh;
+                overflow: visible;
+            }
         }
 
         .content-slash {
@@ -362,6 +506,9 @@ const photosData = sortedPhotos.map((photo, index) => ({
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
+            @media (max-width: 480px) {
+                display: none !important;
+            }
         }
 
         .content-title {
@@ -374,6 +521,16 @@ const photosData = sortedPhotos.map((photo, index) => ({
             letter-spacing: 0.1em;
             color: #222;
             z-index: 5;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50%;
+                top: 25vh;
+                transform: translate(-50%, -50%);
+                align-items: center;
+                justify-content: center;
+                margin: 0rem 0 0rem;
+                font-size: 1.5rem;
+            }
         }
 
         /* arrow-btn 仕様（menu.astroに準拠） */
@@ -382,9 +539,12 @@ const photosData = sortedPhotos.map((photo, index) => ({
             border: none;
             font-size: 2rem;
             color: #444;
-            /* cursor: url('/book-cursor.png'), pointer; */
+            cursor: pointer;
             margin: 0.5rem 0;
             transition: color 0.2s;
+            @media (max-width: 480px) {
+                cursor:not-allowed;
+            }
         }
         .arrow-btn:hover {
             color: #888;
@@ -436,6 +596,15 @@ const photosData = sortedPhotos.map((photo, index) => ({
             overflow: hidden;
             z-index: 6;
             background: transparent;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50vw;
+                top: 51vh;
+                transform: translate(-50%, -50%);
+                width: 90vw;
+                height: 55vh;
+                overflow: visible;
+            }
         }
         .island-title {
             position: absolute;
@@ -443,6 +612,9 @@ const photosData = sortedPhotos.map((photo, index) => ({
             top: 5%;
             font-size: 1.5rem; /* content-nameと同サイズ */
             letter-spacing: 0.1em;
+            @media (max-width: 480px) {
+                margin: 2rem 0rem 0rem 0rem;
+            }
         }
         .island-content {
             position: absolute;
@@ -451,6 +623,10 @@ const photosData = sortedPhotos.map((photo, index) => ({
             width: 90%;
             height: 70%;
             overflow: auto;
+            @media (max-width: 480px) {
+                position: absolute;
+                margin-top: 2rem;
+            }
         }
         /* スクロールバー関連は共通スタイルへ移行（ScrollbarStyles） */
         .thumb-grid {
@@ -490,6 +666,10 @@ const photosData = sortedPhotos.map((photo, index) => ({
             max-width: 100%;
             max-height: 100%;
         }
+        .thumb-mask {
+            position: absolute;
+            inset: -0.5px;
+        }
         .island-pager {
             position: absolute;
             right: 5%;
@@ -497,6 +677,12 @@ const photosData = sortedPhotos.map((photo, index) => ({
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 52vw;
+                top: 55vh;
+                transform: translate(-50%, -50%);
+            }
         }
         .pager-btn {
             background: none;
@@ -506,7 +692,12 @@ const photosData = sortedPhotos.map((photo, index) => ({
             color: #444;
         }
         .pager-btn:hover { color: #888; }
-        .page-indicator { font-size: 0.9rem; }
+        .page-indicator { 
+            font-size: 0.9rem;
+            @media (max-width: 480px) {
+                font-size: 1.1rem;
+            }
+        }
         body.dark .content-island { border: none; }
         body.dark .island-title { color: #eee; }
         body.dark .thumb-grid { color: #eee; }
@@ -545,6 +736,9 @@ const photosData = sortedPhotos.map((photo, index) => ({
             max-width: 800px;
             top: 50%;
             transform: translateY(-50%);
+            @media (max-width: 480px) {
+                touch-action: pan-y;
+            }
         }
         .modal-image {
             width: 100%;
@@ -567,6 +761,12 @@ const photosData = sortedPhotos.map((photo, index) => ({
             cursor: pointer;
             z-index: 1001;
             transition: color 0.2s ease;
+            @media (max-width: 480px) {
+                position: absolute;
+                top: -30px;
+                right: 0;
+                font-size: 1.5rem;
+            }
         }
         .modal-close:hover {
             color: #ccc;
@@ -589,9 +789,27 @@ const photosData = sortedPhotos.map((photo, index) => ({
         }
         .modal-prev {
             left: -60px;
+            @media (max-width: 480px) {
+                top: auto;
+                bottom: -30px;
+                left: 90%;
+                transform: translate(-50%, 0);
+                font-size: 1.2rem;
+                font-weight: 300;
+                padding: 8px;
+            }
         }
         .modal-next {
             right: -60px;
+            @media (max-width: 480px) {
+                top: auto;
+                bottom: -30px;
+                right: 2%;
+                transform: translate(50%, 0);
+                font-size: 1.2rem;
+                font-weight: 300;
+                padding: 8px;
+            }
         }
         /* ダークモード対応 */
         body.dark .modal {

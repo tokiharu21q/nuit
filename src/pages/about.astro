@@ -100,6 +100,11 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            @media (max-width: 480px) {
+                height: auto;
+                min-height: 100vh;
+                overflow: visible;
+            }
         }
 
         .content-slash {
@@ -108,6 +113,10 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
+            @media (max-width: 480px) {
+                display: none !important;
+            }
+
         }
 
         .content-title {
@@ -120,6 +129,16 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             letter-spacing: 0.1em;
             color: #222;
             z-index: 5;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50%;
+                top: 25vh;
+                transform: translate(-50%, -50%);
+                align-items: center;
+                justify-content: center;
+                margin: 0rem 0 0rem;
+                font-size: 1.5rem;
+            }
         }
 
         /* arrow-btn 仕様（menu.astroに準拠） */
@@ -172,6 +191,15 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             overflow: hidden;
             z-index: 6;
             background: transparent;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50vw;
+                top: 51vh;
+                transform: translate(-50%, -50%);
+                width: 90vw;
+                height: 50vh;
+                margin: 0rem 0rem 0rem 1rem;
+            }
         }
         .island-title {
             position: absolute;
@@ -179,6 +207,10 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             top: 5%;
             font-size: 1.5rem;
             letter-spacing: 0.1em;
+            @media (max-width: 480px) {
+                left: 0%;
+                top: 0%;
+            }
         }
         .island-content {
             position: absolute;
@@ -187,6 +219,9 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             width: 90%;
             height: 80%;
             overflow: auto;
+            @media (max-width: 480px) {
+                position: absolute;
+            }
         }
 
         .about-body {
@@ -195,6 +230,11 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             font-weight: 300;
             white-space: pre-wrap;
             transition: opacity 0.8s ease-in-out;
+            margin-top: 7.7rem;
+            @media (max-width: 480px) {
+                margin: 0rem 4rem 0rem 0rem;
+                max-height: 50vh;
+            }
         }
 
         .about-body h1,

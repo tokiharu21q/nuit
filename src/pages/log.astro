@@ -81,6 +81,34 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             // 現在のコンテンツ名を保存
             localStorage.setItem('currentContent', 'log');
         });
+
+        // 戻るボタンのイベントリスナーを確実に設定（define:varsによる実行タイミングの問題を回避）
+        function setupBackButtonForLog() {
+            const backButton = document.getElementById('backToMenu');
+            if (backButton) {
+                // 既存のイベントリスナーを削除（重複防止）
+                const existingHandler = backButton.__backButtonHandler;
+                if (existingHandler) {
+                    backButton.removeEventListener('click', existingHandler);
+                }
+                
+                const handler = () => {
+                    // コンテンツ名を保存
+                    localStorage.setItem('currentContent', 'log');
+                };
+                backButton.addEventListener('click', handler);
+                backButton.__backButtonHandler = handler;
+            }
+        }
+
+        // 複数のタイミングで初期化を試みる（確実性のため）
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupBackButtonForLog);
+        } else {
+            setupBackButtonForLog();
+        }
+        document.addEventListener('astro:page-load', setupBackButtonForLog);
+        document.addEventListener('astro:after-swap', setupBackButtonForLog);
         
         // ===== 日記一覧：ページング（暫定の最大表示件数は10件。後から変更可能）
         const DIARY_PAGE_SIZE_DEFAULT = 10;
@@ -275,6 +303,11 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            @media (max-width: 480px) {
+                height: auto;
+                min-height: 100vh;
+                overflow: visible;
+            }
         }
 
         .content-slash {
@@ -283,6 +316,9 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
+            @media (max-width: 480px) {
+                display: none !important;
+            }
         }
 
         .content-title {
@@ -295,6 +331,16 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             letter-spacing: 0.1em;
             color: #222;
             z-index: 5;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50%;
+                top: 25vh;
+                transform: translate(-50%, -50%);
+                align-items: center;
+                justify-content: center;
+                margin: 0rem 0 0rem;
+                font-size: 1.5rem;
+            }
         }
 
         /* arrow-btn 仕様（menu.astroに準拠） */
@@ -358,6 +404,16 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             overflow: hidden;
             z-index: 6;
             background: transparent;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50vw;
+                top: 51vh;
+                transform: translate(-50%, -50%);
+                width: 90vw;
+                height: 55vh;
+                overflow: visible;
+                margin: 0rem 0rem 0rem 1rem;
+            }
         }
         .island-title {
             position: absolute;
@@ -365,6 +421,9 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             top: 5%;
             font-size: 1.2rem; /* content-nameと同サイズ */
             letter-spacing: 0.1em;
+            @media (max-width: 480px) {
+                margin: 2rem 0rem 0rem 0rem;
+            }
         }
         .island-content {
             position: absolute;
@@ -373,6 +432,10 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             width: 90%;
             height: 70%;
             overflow: auto;
+            @media (max-width: 480px) {
+                position: absolute;
+                margin-top: 2rem;
+            }
         }
         /* スクロールバー関連は共通スタイルへ移行（ScrollbarStyles） */
         .diary-list {
@@ -381,6 +444,11 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             list-style: none;
             /* 高さの急激な変化を防ぐ */
             transition: min-height 0.1s ease-out, opacity 1s ease-in-out;
+            margin-top: 7.7rem;
+            @media (max-width: 480px) {
+                margin: 0rem 4rem 0rem 0rem;
+                max-height: 50vh;
+            }
         }
         
         /* 新しい要素のフェードイン用（1秒） */
@@ -416,6 +484,12 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50vw;
+                top: 55vh;
+                transform: translate(-50%, -50%);
+            }
         }
         .pager-btn {
             background: none;
@@ -432,7 +506,12 @@ const diaryEntries = sortedEntries.map((entry, index) => ({
             color: #ccc;
             /* cursor: default; */
         }
-        .page-indicator { font-size: 0.9rem; }
+        .page-indicator { 
+            font-size: 0.9rem;
+            @media (max-width: 480px) {
+                font-size: 1.1rem;
+            }
+        }
         body.dark .content-island { border: none; }
         body.dark .island-title { color: #eee; }
         body.dark .diary-list { color: #eee; }

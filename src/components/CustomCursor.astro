@@ -139,8 +139,9 @@
 
       // ホバー効果（135度回転）
       document.addEventListener('mouseenter', (e) => {
-        const target = e.target as HTMLElement;
-        if (target && (target.tagName === 'A' || target.tagName === 'BUTTON' || target.hasAttribute('data-hover'))) {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (target.tagName === 'A' || target.tagName === 'BUTTON' || target.hasAttribute('data-hover')) {
           if (this.square) {
             this.square.style.transform = 'rotate(135deg)';
             this.square.style.opacity = '0.85';
@@ -149,8 +150,9 @@
       }, true);
       
       document.addEventListener('mouseleave', (e) => {
-        const target = e.target as HTMLElement;
-        if (target && (target.tagName === 'A' || target.tagName === 'BUTTON' || target.hasAttribute('data-hover'))) {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (target.tagName === 'A' || target.tagName === 'BUTTON' || target.hasAttribute('data-hover')) {
           if (this.square) {
             this.square.style.transform = 'rotate(0deg)';
             this.square.style.opacity = '1';

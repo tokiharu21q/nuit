@@ -63,6 +63,9 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             top: 55vh;
             transform: translate(-50%, -50%);
             margin-bottom: 3.5rem;
+            @media (max-width: 480px) {
+                top: 48vh;
+            }
         }
         .line {
             width: 120px;
@@ -89,6 +92,13 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             color: #7c7c7c;
         }
 
+        body.dark .view-text {
+            color: #eee;
+        }
+        body.dark .view-text:hover, body.dark .view-text:focus {
+            color: #fff;
+        }
+
         body.dark {
             background: #1F222D;
             color: #fff;
@@ -99,7 +109,8 @@ import ThemeToggle from '../components/ThemeToggle.astro';
         body.dark .view-text {
             color: #eee;
         }
-        body.dark .view-text:hover, body.dark .view-text:focus {
+        body.dark .view-text:hover,
+        body.dark .view-text:focus {
             color: #fff;
         }
 
@@ -107,7 +118,34 @@ import ThemeToggle from '../components/ThemeToggle.astro';
             fill: #1F222D;
         }
 
-
+        /* スマホ表示時、「ent」の上下に線を追加 */
+        @media (max-width: 480px) {
+            .view-text {
+                position: relative;
+            }
+            .view-text::before,
+            .view-text::after {
+                content: '';
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 4em; /* 「ent」の文字幅に合わせる */
+                height: 0.5px;
+                background: #272727;
+                transition: background 0.3s ease-in-out;
+            }
+            .view-text::before {
+                top: -0.5rem;
+            }
+            .view-text::after {
+                bottom: -0.5rem;
+            }
+            /* ダークテーマ時は色を反転 */
+            body.dark .view-text::before,
+            body.dark .view-text::after {
+                background: #fff;
+            }
+        }
 
     </style>
 </body>

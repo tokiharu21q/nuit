@@ -40,6 +40,12 @@ const {
   function setupBackButton() {
     const backButton = document.getElementById('backToMenu');
     if (backButton) {
+      // 既存のイベントリスナーを削除（重複防止）
+      const existingHandler = (backButton as any).__backButtonHandler;
+      if (existingHandler) {
+        backButton.removeEventListener('click', existingHandler);
+      }
+
       // 現在のページパスからコンテンツ名を特定
       const currentPath = window.location.pathname;
       const contentMap: { [key: string]: string } = {
@@ -50,9 +56,12 @@ const {
       const currentContent = contentMap[currentPath];
       
       if (currentContent) {
-        backButton.addEventListener('click', () => {
+        const handler = () => {
           localStorage.setItem('currentContent', currentContent);
-        });
+        };
+        backButton.addEventListener('click', handler);
+        // ハンドラを保存（次回削除用）
+        (backButton as any).__backButtonHandler = handler;
       }
     }
   }
@@ -62,6 +71,7 @@ const {
 
   // View Transitions対応：ページ遷移後に再初期化
   document.addEventListener('astro:after-swap', setupBackButton);
+  document.addEventListener('astro:page-load', setupBackButton);
 </script>
 
 <style>
@@ -87,7 +97,22 @@ const {
     left: 10vw;
     top: 50vh;
     transform: translate(-50%, -50%);
-    z-index: 5;
+    z-index: 10;
+    @media (max-width: 480px) {
+      left: 30vw;
+      top: 24.2vh;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .back-to-menu svg {
+    @media (max-width: 480px) {
+      left: 50vw;
+      top: 10vh;
+      width: 20px;
+      height: 20px;
+    }
   }
 
   .copyright {
@@ -104,6 +129,9 @@ const {
     background: none;
     border: none;
     outline: none;
+    @media (max-width: 480px) {
+      bottom: 5%;
+    }
   }
 
   /* ダークモード対応 */

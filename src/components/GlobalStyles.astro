@@ -74,4 +74,54 @@
     border: none;
   }
 
+  /* ===== レスポンシブ用グローバル変数（推奨: グローバルCSSとカスタムプロパティ） ===== */
+  :root {
+    /* ブレークポイント */
+    --bp-lg: 1024px;
+    --bp-md: 768px;
+    --bp-sm: 480px;
+
+    /* レイアウト基本スケール（ページ固有スタイルから参照可能） */
+    --container-max: 1200px;
+    --container-padding: 2rem; /* デフォルト（PC） */
+  }
+
+  /* タイポグラフィと余白の段階的縮小（モバイルファーストに寄せつつ安全な最小変更）
+  max-widthの考え方はこの幅まではこの値を設定する、という意味。min-widthはその逆。 */
+  @media (max-width: 1024px) {
+    html { font-size: 15px; }
+    :root { --container-padding: 1.5rem; }
+  }
+
+  @media (max-width: 768px) {
+    html { font-size: 14px; }
+    :root { --container-padding: 1rem; }
+  }
+
+  @media (max-width: 480px) {
+    html { font-size: 12px; }
+    :root { --container-padding: 0.75rem; }
+    .moon-btn.entrance { display: none !important; }
+    .moon-btn.menu { 
+      top: 5vh !important;
+      left: 10vw !important;
+      width: 45px ;
+      height: 45px ;
+    }
+    .moon-btn.menu svg {
+      width: 45px !important;
+      height: 45px !important;
+    }
+    .moon-btn.content {
+      top: 5vh !important;
+      left: 10vw !important;
+      width: 45px !important;
+      height: 45px !important;
+    }
+    .moon-btn.content svg {
+      width: 45px !important;
+      height: 45px !important;
+    }
+  }
+
 </style>

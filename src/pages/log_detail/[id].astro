@@ -134,6 +134,11 @@ const articleData = {
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            @media (max-width: 480px) {
+                height: auto;
+                min-height: 100vh;
+                overflow: visible;
+            }
         }
 
         .content-slash {
@@ -142,6 +147,9 @@ const articleData = {
             top: 50vh;
             transform: translate(-50%, -50%);
             z-index: 1;
+            @media (max-width: 480px) {
+                display: none !important;
+            }
         }
 
         .content-title {
@@ -154,6 +162,14 @@ const articleData = {
             letter-spacing: 0.1em;
             color: #222;
             z-index: 5;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50%;
+                top: 25vh;
+                transform: translate(-50%, -50%);
+                margin: 0;
+                font-size: 1.5rem;
+            }
         }
 
         /* arrow-btn 仕様（menu.astroに準拠） */
@@ -216,6 +232,15 @@ const articleData = {
             overflow: hidden;
             z-index: 6;
             background: transparent;
+            @media (max-width: 480px) {
+                position: absolute;
+                left: 50vw;
+                top: 51vh;
+                transform: translate(-50%, -50%);
+                width: 90vw;
+                height: 55vh;
+                overflow: visible;
+            }
         }
         .island-title {
             position: absolute;
@@ -223,6 +248,9 @@ const articleData = {
             top: 5%;
             font-size: 1.5rem; /* content-nameと同サイズ */
             letter-spacing: 0.1em;
+            @media (max-width: 480px) {
+                margin: 3rem 0 0 0;
+            }
         }
         .island-content {
             position: absolute;
@@ -231,6 +259,11 @@ const articleData = {
             width: 90%;
             height: 70%;
             overflow: auto;
+            @media (max-width: 480px) {
+                position: absolute;
+                top: 20%;
+                margin-top: 2rem;
+            }
         }
         /* スクロールバー関連は共通スタイルへ移行（ScrollbarStyles） */
         

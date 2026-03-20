@@ -10,6 +10,12 @@ const { title, description } = Astro.props;
 ---
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta name="generator" content={Astro.generator} />
+<!-- ブラウザUI（アドレスバー等）の色調整用 -->
+<meta name="theme-color" id="appThemeColor" content="#ffffff" />
+<!-- 通常時のフォールバック（アプリ側のJS更新が走らない場合用） -->
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1F222D" />
+<!-- フォームコントロール等の色調に関わる指定（ブラウザ互換のためCSS側でも設定） -->
+<meta name="color-scheme" content="light dark" />
 
 <!-- 主要メタタグ -->
 <title>{title}</title>
@@ -17,3 +23,32 @@ const { title, description } = Astro.props;
 <meta name="description" content={description} />
 
 <ClientRouter /> 
+
+<script>
+  // `body.dark` に追従して `theme-color` を更新（モバイルFirefoxのUI色に影響しやすい）
+  (function () {
+    const meta = document.getElementById('appThemeColor');
+    if (!meta) return;
+
+    const apply = function () {
+      const isDark = document.body?.classList?.contains('dark');
+      meta.setAttribute('content', isDark ? '#1F222D' : '#ffffff');
+    };
+
+    const setup = function () {
+      apply();
+      // テーマ切替（ThemeToggle）が `body.classList` を変更するため、その変更に追従
+      const observer = new MutationObserver(apply);
+      if (document.body) {
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      }
+    };
+
+    // `<head>`内のscript実行時に `body` がまだ無い場合があるため、DOM構築後にセットアップ
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setup);
+    } else {
+      setup();
+    }
+  })();
+</script>

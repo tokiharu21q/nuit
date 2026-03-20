@@ -31,7 +31,9 @@ const { title, description } = Astro.props;
     if (!meta) return;
 
     const apply = function () {
-      const isDark = document.body?.classList?.contains('dark');
+      const isDark =
+        document.documentElement?.classList?.contains('dark') ||
+        document.body?.classList?.contains('dark');
       meta.setAttribute('content', isDark ? '#1F222D' : '#ffffff');
     };
 

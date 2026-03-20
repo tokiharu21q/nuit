@@ -25,14 +25,17 @@ const { className = "", position = "content" } = Astro.props;
 <script>
   // テーマ保存・復元
   function saveTheme() {
-    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    const isDark =
+      document.body?.classList?.contains('dark') ||
+      document.documentElement?.classList?.contains('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }
 
   function loadTheme() {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
-    }
+    const shouldBeDark = savedTheme === 'dark';
+    document.body?.classList?.toggle('dark', shouldBeDark);
+    document.documentElement?.classList?.toggle('dark', shouldBeDark);
   }
 
   // テーマ復元とトグル
@@ -42,6 +45,7 @@ const { className = "", position = "content" } = Astro.props;
     if (moonBtn) {
       moonBtn.onclick = () => {
         document.body.classList.toggle('dark');
+        document.documentElement.classList.toggle('dark');
         saveTheme();
       };
     }

@@ -671,16 +671,18 @@ const photosData = sortedPhotos.map((photo, index) => ({
             inset: -0.5px;
         }
         .island-pager {
-            position: absolute;
-            right: 5%;
+            position: fixed;
+            left: 50%;
             bottom: 5%;
+            transform: translateX(-50%);
+            z-index: 7;
             display: flex;
             align-items: center;
             gap: 0.6rem;
             @media (max-width: 599px) {
-                position: absolute;
-                left: 52vw;
+                left: 50%;
                 top: 55vh;
+                bottom: auto;
                 transform: translate(-50%, -50%);
             }
         }
